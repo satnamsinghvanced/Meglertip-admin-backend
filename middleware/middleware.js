@@ -13,6 +13,7 @@ const auth = (req, res, next) => {
         }
 
         jwt.verify(token, secretKey, async (err, decoded) => {
+            // console.log(token, "check ")
             if (err) {
                 return res.status(700).json({ message: "Invalid token" });
             }

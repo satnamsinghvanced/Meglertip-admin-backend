@@ -64,10 +64,11 @@ exports.loginAdmin = async (req, res) => {
     res.json({
       success: true,
       admin: {
-        id: admin._id,
+        _id: admin._id,
         username: admin.username,
         email: admin.email,
         role: admin.role,
+        avatar: admin.avatar
       },
       token: generateToken(admin._id, admin.role, admin.email),
     });
@@ -124,10 +125,19 @@ exports.resendOtp = async (req, res) => {
 exports.changePassword = async (req, res) => {
   try {
     const { id } = req.query;
-    const { newPassword } = req.body;
+    const {oldPassword, newPassword } = req.body;
 
-    if (!id || !newPassword) {
+    if (!id || !newPassword || !oldPassword) {
       return res.status(400).json({ message: "Missing id or newPassword" });
+    }
+    const admin =  await Admin.findById(id)
+    if(!admin){
+      return res.status(404).json({message: "User not found"})
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, admin.password);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Incorrect Old Password" });
     }
 
     const saltRounds = 10;
@@ -169,12 +179,12 @@ exports.updateProfile = async (req, res) => {
     if (!admin) return res.status(404).json({ message: "Admin not found" });
 
     admin.username = updateData.username || admin.username;
-    admin.email = updateData.email || admin.email;
+    // admin.email = updateData.email || admin.email;
     if (updateData.avatar !== undefined) {
       admin.avatar = updateData.avatar;
     }
     await admin.save();
-    return res.status(200).json({ success: true, admin });
+    return res.status(200).json({ success: true, admin , message:"Successfully Updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
