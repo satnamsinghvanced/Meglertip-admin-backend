@@ -9,69 +9,74 @@ const homepageSchema = new mongoose.Schema(
       buttonText: { type: String },
       ctaLink: { type: String },
     },
-    bannerSection: {
+    bannerSection1: {
       heading: { type: String },
     },
-    bannerSectionCards: [
+    bannerSectionCards1: [
+      {
+        title: { type: String },
+        icon: { type: String },
+        description: { type: String },
+      },
+    ],
+    bannerSection2: {
+      heading: { type: String },
+    },
+    bannerSectionCards2: [
+      {
+        title: { type: String },
+        icon: { type: String },
+        description: { type: String },
+      },
+    ],
+    bannerSection3: {
+      heading: { type: String },
+    },
+    bannerSectionCards3: [
+      {
+        title: { type: String },
+        icon: { type: String },
+        description: { type: String },
+      },
+    ],
+    bannerSection4: {
+      heading: { type: String },
+    },
+    bannerSectionCards4: [
       {
         title: { type: String },
         image: { type: String },
-        description: { type: String },
-        price: { type: Number },
-        location: { type: String },
+        icon: { type: String },
+        lists: [{ type: String }],
+        buttonText: { type: String },
       },
     ],
-
-    // agentsSection: {
-    //   title: { type: String },
-    //   agents: [
-    //     {
-    //       agentId: { type: mongoose.Schema.Types.ObjectId, ref: "Agent" },
-    //       name: { type: String },
-    //       image: { type: String },
-    //       designation: { type: String },
-    //       contactLink: { type: String },
-    //     },
-    //   ],
-    // },
-
-    // testimonials: [
-    //   {
-    //     name: { type: String },
-    //     image: { type: String },
-    //     review: { type: String },
-    //     rating: { type: Number, min: 1, max: 5 },
-    //   },
-    // ],
-
-    blogSection: {
+    citySection: {
       title: { type: String },
-      blogs: [
-        {
-          blogId: { type: mongoose.Schema.Types.ObjectId, ref: "Blog" },
-          title: { type: String },
-          image: { type: String },
-          slug:{
-            type:String, unique: true,
-          },
-          shortDescription: { type: String },
-        },
-      ],
-    },
-
-    aboutSection: {
-      heading: { type: String },
       description: { type: String },
-      image: { type: String },
     },
-
-    seo: {
-      metaTitle: { type: String },
-      metaDescription: { type: String },
-      keywords: [{ type: String }],
+    bannerSectionCards5: [
+      {
+        title: { type: String },
+        description: { type: String },
+        image: { type: String },
+        buttonText: { type: String },
+      },
+    ],
+    bannerSectionCards6: [
+      {
+        title: { type: String },
+        subTitle: { type: String },
+        image: { type: String },
+        buttonText: { type: String },
+        icon: { type: String },
+        lists: [{ type: String }],
+        description: { type: String },
+      },
+    ],
+    articleSection: {
+      heading: { type: String },
     },
-
-    updatedBy: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
   },
   { timestamps: true }
 );
