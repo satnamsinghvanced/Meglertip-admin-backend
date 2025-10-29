@@ -9,38 +9,40 @@ const homepageSchema = new mongoose.Schema(
       buttonText: { type: String },
       ctaLink: { type: String },
     },
-
-    howItWorks: [
+    bannerSection: {
+      heading: { type: String },
+    },
+    bannerSectionCards: [
       {
-        // propertyId: { type: mongoose.Schema.Types.ObjectId, ref: "Property" },
         title: { type: String },
         image: { type: String },
+        description: { type: String },
         price: { type: Number },
         location: { type: String },
       },
     ],
 
-    agentsSection: {
-      title: { type: String },
-      agents: [
-        {
-          agentId: { type: mongoose.Schema.Types.ObjectId, ref: "Agent" },
-          name: { type: String },
-          image: { type: String },
-          designation: { type: String },
-          contactLink: { type: String },
-        },
-      ],
-    },
+    // agentsSection: {
+    //   title: { type: String },
+    //   agents: [
+    //     {
+    //       agentId: { type: mongoose.Schema.Types.ObjectId, ref: "Agent" },
+    //       name: { type: String },
+    //       image: { type: String },
+    //       designation: { type: String },
+    //       contactLink: { type: String },
+    //     },
+    //   ],
+    // },
 
-    testimonials: [
-      {
-        name: { type: String },
-        image: { type: String },
-        review: { type: String },
-        rating: { type: Number, min: 1, max: 5 },
-      },
-    ],
+    // testimonials: [
+    //   {
+    //     name: { type: String },
+    //     image: { type: String },
+    //     review: { type: String },
+    //     rating: { type: Number, min: 1, max: 5 },
+    //   },
+    // ],
 
     blogSection: {
       title: { type: String },
@@ -49,6 +51,9 @@ const homepageSchema = new mongoose.Schema(
           blogId: { type: mongoose.Schema.Types.ObjectId, ref: "Blog" },
           title: { type: String },
           image: { type: String },
+          slug:{
+            type:String, unique: true,
+          },
           shortDescription: { type: String },
         },
       ],

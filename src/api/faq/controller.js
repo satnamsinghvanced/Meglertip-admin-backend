@@ -1,4 +1,5 @@
 const FAQ = require("../../../models/faq");
+const Category = require("../../../models/category")
 
 exports.createFAQ = async (req, res) => {
   try {
@@ -17,11 +18,20 @@ exports.createFAQ = async (req, res) => {
 
 exports.getFAQs = async (req, res) => {
   try {
-    const faqs = await FAQ.find()
-      .populate("categoryId", "_id categoryName")
-      .sort({ createdAt: -1 });
+       const categories = await Category.find().select("categoryName");
 
-    res.json({ success: true, data: faqs });
+        const data = await Promise.all(
+            categories.map(async (category) => {
+                const faqs = await FAQ.find({ categoryId: category._id }).select("question answer");
+                ;
+                return {
+                    ...category.toObject(),
+                    faqs,
+                };
+            })
+        );
+
+    res.json({ success: true, data: data });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -67,7 +77,7 @@ exports.updateFAQ = async (req, res) => {
 
 exports.deleteFAQ = async (req, res) => {
   try {
-     const {id} = req.query;
+     const {  } = req.query;
     const faq = await FAQ.findByIdAndDelete(id);
 
     if (!faq) {
