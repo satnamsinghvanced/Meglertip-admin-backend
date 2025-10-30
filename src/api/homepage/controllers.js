@@ -1,5 +1,4 @@
 const Homepage = require("../../../models/homepage");
-const mongoose = require("mongoose");
 
 const validSections = [
   "heroSection",
@@ -44,7 +43,8 @@ exports.createHomepage = async (req, res) => {
 exports.createSection = async (req, res) => {
   try {
     const { homepageId, section } = req.params;
-    const data = req.body;
+    let data = { ...req.body };
+
     if (!validSections.includes(section)) {
       return res
         .status(400)
@@ -52,12 +52,18 @@ exports.createSection = async (req, res) => {
     }
 
     const homepage = await Homepage.findById(homepageId);
-
     if (!homepage) {
       return res
         .status(404)
         .json({ success: false, message: "Homepage not found" });
     }
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file) => {
+        const field = file.fieldname;
+        data[field] = `/uploads/${file.filename}`;
+      });
+    }
+
     homepage[section] = data;
     await homepage.save();
 
@@ -97,7 +103,7 @@ exports.getSection = async (req, res) => {
 exports.updateSection = async (req, res) => {
   try {
     const { homepageId, section } = req.params;
-    const data = req.body;
+    let data = { ...req.body };
 
     if (!validSections.includes(section)) {
       return res
@@ -105,11 +111,22 @@ exports.updateSection = async (req, res) => {
         .json({ success: false, message: "Invalid section name" });
     }
 
-    const homepage = await Homepage.findByIdAndUpdate(
-      homepageId,
-      { $set: { [section]: data } },
-      { new: true, upsert: true }
-    );
+    if (req.files && req.files.length > 0) {
+      req.files.forEach((file) => {
+        const field = file.fieldname;
+        data[field] = `/uploads/${file.filename}`;
+      });
+    }
+
+    const homepage = await Homepage.findById(homepageId);
+    if (!homepage) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Homepage not found" });
+    }
+
+    homepage[section] = { ...homepage[section].toObject(), ...data };
+    await homepage.save();
 
     res.status(200).json({
       success: true,
