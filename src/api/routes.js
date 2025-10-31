@@ -7,6 +7,8 @@ const categoryRoutes = require("./category/route");
 const cityRotes = require("./city/route");
 const companiesRoutes = require("./companies/route");
 const homepageRoutes = require("./homepage/route");
+const articleCategoryRoutes = require("./articleCategory/route");
+const articleRoutes = require("./article/route");
 
 const router = express.Router();
 router.use("/admin", adminRoutes);
@@ -16,5 +18,7 @@ router.use("/category", categoryRoutes);
 router.use("/companies", companiesRoutes);
 router.use("/cities", cityRotes);
 router.use("/homepage", homepageRoutes);
+router.use("/article-categories", articleCategoryRoutes);
+router.use("/article", articleRoutes);
 
 module.exports = router;

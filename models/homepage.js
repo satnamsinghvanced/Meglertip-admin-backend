@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 
-const homepageSchema = new mongoose.Schema(
+const homePageSchema = new mongoose.Schema(
   {
     heroSection: {
       title: { type: String },
@@ -81,4 +81,4 @@ const homepageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Homepage", homepageSchema);
+module.exports = mongoose.model("homePage", homePageSchema);
