@@ -1,165 +1,163 @@
-const Homepage = require("../../../models/homepage");
+const HomePage = require("../../../models/homepage");
 
-const validSections = [
-  "heroSection",
-  "bannerSection1",
-  "bannerSection2",
-  "bannerSection3",
-  "bannerSection4",
-  "citySection",
-  "bannerSectionCards1",
-  "bannerSectionCards2",
-  "bannerSectionCards3",
-  "bannerSectionCards4",
-  "bannerSectionCards5",
-  "bannerSectionCards6",
-  "articleSection",
-];
 
-exports.createHomepage = async (req, res) => {
+const getOrCreateHomePage = async () => {
+  let home = await HomePage.findOne();
+  if (!home) {
+    home = await HomePage.create({});
+  }
+  return home;
+};
+
+exports.getHeroSection = async (req, res) => {
   try {
-    const existing = await Homepage.findOne();
-    if (existing) {
-      return res.status(400).json({
-        success: false,
-        message: "Homepage already exists",
-        homepageId: existing._id,
-      });
-    }
-
-    const homepage = new Homepage(req.body);
-    await homepage.save();
-
-    res.status(201).json({
-      success: true,
-      message: "Homepage created successfully",
-      data: homepage[section],
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    const home = await getOrCreateHomePage();
+    res.status(200).json({ success: true, data: home.heroSection });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-exports.createSection = async (req, res) => {
+exports.updateHeroSection = async (req, res) => {
   try {
-    const { homepageId, section } = req.params;
-    let data = { ...req.body };
-
-    if (!validSections.includes(section)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid section name" });
-    }
-
-    const homepage = await Homepage.findById(homepageId);
-    if (!homepage) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Homepage not found" });
-    }
-    if (req.files && req.files.length > 0) {
-      req.files.forEach((file) => {
-        const field = file.fieldname;
-        data[field] = `/uploads/${file.filename}`;
-      });
-    }
-
-    homepage[section] = data;
-    await homepage.save();
-
-    res.status(201).json({
-      success: true,
-      message: `${section} created successfully`,
-      data: homepage[section],
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+    console.log(req.body)
+    const { title, subtitle, backgroundImage, buttonText, ctaLink } = req.body;
+    const home = await getOrCreateHomePage();
+    home.heroSection = { title, subtitle, backgroundImage, buttonText, ctaLink };
+    await home.save();
+    res.status(200).json({ success: true, message: "Hero section updated successfully" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-exports.getSection = async (req, res) => {
+exports.getHowItWorks = async (req, res) => {
   try {
-    const { homepageId, section } = req.params;
-
-    if (!validSections.includes(section)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid section name" });
-    }
-
-    const homepage = await Homepage.findById(homepageId).select(section);
-    if (!homepage) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Homepage not found" });
-    }
-
-    res.status(200).json({ success: true, data: homepage[section] });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
-  }
-};
-
-exports.updateSection = async (req, res) => {
-  try {
-    const { homepageId, section } = req.params;
-    let data = { ...req.body };
-
-    if (!validSections.includes(section)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid section name" });
-    }
-
-    if (req.files && req.files.length > 0) {
-      req.files.forEach((file) => {
-        const field = file.fieldname;
-        data[field] = `/uploads/${file.filename}`;
-      });
-    }
-
-    const homepage = await Homepage.findById(homepageId);
-    if (!homepage) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Homepage not found" });
-    }
-
-    homepage[section] = { ...homepage[section].toObject(), ...data };
-    await homepage.save();
-
+    const home = await getOrCreateHomePage();
     res.status(200).json({
       success: true,
-      message: `${section} updated successfully`,
-      data: homepage[section],
+      data: {
+        heading: home.howDoesItworks?.heading,
+        cards: home.howDoesItworksCards,
+      },
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };
 
-exports.deleteSection = async (req, res) => {
+exports.updateHowItWorks = async (req, res) => {
   try {
-    const { homepageId, section } = req.params;
+    const { heading, cards } = req.body; // cards = [{title, icon, description}]
+    const home = await getOrCreateHomePage();
+    home.howDoesItworks = { heading };
+    if (Array.isArray(cards)) home.howDoesItworksCards = cards;
+    await home.save();
+    res.status(200).json({ success: true, message: "How It Works section updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
-    if (!validSections.includes(section)) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid section name" });
-    }
+// -------------------------------
+// 3️⃣ Our Articles Heading
+// -------------------------------
+exports.getArticlesHeading = async (req, res) => {
+  try {
+    const home = await getOrCreateHomePage();
+    res.status(200).json({ success: true, data: home.ourArticlesHeading });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
-    const homepage = await Homepage.findByIdAndUpdate(
-      homepageId,
-      { $unset: { [section]: "" } },
-      { new: true }
-    );
+exports.updateArticlesHeading = async (req, res) => {
+  try {
+    const { heading } = req.body;
+    const home = await getOrCreateHomePage();
+    home.ourArticlesHeading = { heading };
+    await home.save();
+    res.status(200).json({ success: true, message: "Articles heading updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
 
+// -------------------------------
+// 4️⃣ Why Choose Meglertip Section
+// -------------------------------
+exports.getWhyChoose = async (req, res) => {
+  try {
+    const home = await getOrCreateHomePage();
     res.status(200).json({
       success: true,
-      message: `${section} deleted successfully`,
-      data: homepage[section],
+      data: {
+        heading: home.whyChooseMeglertipHeading?.heading,
+        cards: home.whyChooseMeglertipCards,
+      },
     });
-  } catch (error) {
-    res.status(500).json({ success: false, message: error.message });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.updateWhyChoose = async (req, res) => {
+  try {
+    const { heading, cards } = req.body;
+    const home = await getOrCreateHomePage();
+    home.whyChooseMeglertipHeading = { heading };
+    if (Array.isArray(cards)) home.whyChooseMeglertipCards = cards;
+    await home.save();
+    res.status(200).json({ success: true, message: "Why Choose section updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// -------------------------------
+// 5️⃣ City Section
+// -------------------------------
+exports.getCitySection = async (req, res) => {
+  try {
+    const home = await getOrCreateHomePage();
+    res.status(200).json({ success: true, data: home.citySectionHeading });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.updateCitySection = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const home = await getOrCreateHomePage();
+    home.citySectionHeading = { title, description };
+    await home.save();
+    res.status(200).json({ success: true, message: "City section updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+// -------------------------------
+// 6️⃣ Pros Section
+// -------------------------------
+exports.getProsSection = async (req, res) => {
+  try {
+    const home = await getOrCreateHomePage();
+    res.status(200).json({ success: true, data: home.prosSection });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.updateProsSection = async (req, res) => {
+  try {
+    const { prosSection } = req.body; // array of objects
+    const home = await getOrCreateHomePage();
+    if (Array.isArray(prosSection)) home.prosSection = prosSection;
+    await home.save();
+    res.status(200).json({ success: true, message: "Pros section updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
   }
 };

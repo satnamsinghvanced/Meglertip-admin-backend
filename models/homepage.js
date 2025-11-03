@@ -9,74 +9,49 @@ const homePageSchema = new mongoose.Schema(
       buttonText: { type: String },
       ctaLink: { type: String },
     },
-    bannerSection1: {
+    howDoesItworks: {
       heading: { type: String },
     },
-    bannerSectionCards1: [
+    howDoesItworksCards: [
       {
         title: { type: String },
         icon: { type: String },
         description: { type: String },
       },
     ],
-    bannerSection2: {
+    ourArticlesHeading: {
       heading: { type: String },
     },
-    bannerSectionCards2: [
+    whyChooseMeglertipHeading: {
+      heading: { type: String },
+    },
+    whyChooseMeglertipCards: [
       {
         title: { type: String },
         icon: { type: String },
         description: { type: String },
       },
     ],
-    bannerSection3: {
-      heading: { type: String },
-    },
-    bannerSectionCards3: [
-      {
-        title: { type: String },
-        icon: { type: String },
-        description: { type: String },
-      },
-    ],
-    bannerSection4: {
-      heading: { type: String },
-    },
-    bannerSectionCards4: [
-      {
-        title: { type: String },
-        image: { type: String },
-        icon: { type: String },
-        lists: [{ type: String }],
-        buttonText: { type: String },
-      },
-    ],
-    citySection: {
+   
+    citySectionHeading: {
       title: { type: String },
       description: { type: String },
     },
-    bannerSectionCards5: [
+    prosSection:[
       {
-        title: { type: String },
-        description: { type: String },
-        image: { type: String },
-        buttonText: { type: String },
-      },
-    ],
-    bannerSectionCards6: [
-      {
-        title: { type: String },
-        subTitle: { type: String },
-        image: { type: String },
-        buttonText: { type: String },
-        icon: { type: String },
-        lists: [{ type: String }],
-        description: { type: String },
-      },
-    ],
-    articleSection: {
-      heading: { type: String },
-    },
+        title:{type:String},
+        subHeading:{type:String},
+        description:[{type:String}],
+        image:{
+        type:String
+        },
+        imagePosition:{type :String
+        },
+        buttonText:{
+          type:String
+        }
+      }
+    ]
   },
   { timestamps: true }
 );

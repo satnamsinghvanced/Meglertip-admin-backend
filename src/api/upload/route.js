@@ -8,5 +8,10 @@ router.post(
   uploadImage.single("avatar"),
   uploadProfileImage
 );
+router.post(
+  "/",
+  uploadImage.single("image"),
+  uploadProfileImage
+);
 
 module.exports = router;

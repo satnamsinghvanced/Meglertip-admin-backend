@@ -77,7 +77,7 @@ exports.updateFAQ = async (req, res) => {
 
 exports.deleteFAQ = async (req, res) => {
   try {
-     const {  } = req.query;
+     const {id} = req.query;
     const faq = await FAQ.findByIdAndDelete(id);
 
     if (!faq) {

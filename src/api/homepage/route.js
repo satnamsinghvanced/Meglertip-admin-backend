@@ -1,23 +1,31 @@
 const express = require("express");
-const {
-  createHomepage,
-  createSection,
-  getSection,
-  updateSection,
-  deleteSection,
-} = require("../homepage/controllers");
-
+const controller = require("./controllers")
 const uploadImage = require("../../../service/multer");
 const router = express.Router();
 
-router.post("/", createHomepage);
+// Hero
+router.get("/hero", controller.getHeroSection);
+router.put("/hero", controller.updateHeroSection);
 
-router.post("/:homepageId/:section", uploadImage.any(), createSection);
+// How it works
+router.get("/how-it-works", controller.getHowItWorks);
+router.put("/how-it-works", controller.updateHowItWorks);
 
-router.get("/:homepageId/:section", getSection);
+// Articles
+router.get("/articles-heading", controller.getArticlesHeading);
+router.put("/articles-heading", controller.updateArticlesHeading);
 
-router.put("/:homepageId/:section", uploadImage.any(), updateSection);
+// Why Choose
+router.get("/why-choose", controller.getWhyChoose);
+router.put("/why-choose", controller.updateWhyChoose);
 
-router.delete("/:homepageId/:section", deleteSection);
+// City
+router.get("/city", controller.getCitySection);
+router.put("/city", controller.updateCitySection);
+
+// Pros
+router.get("/pros", controller.getProsSection);
+router.put("/pros", controller.updateProsSection);
+
 
 module.exports = router;
