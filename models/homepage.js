@@ -3,82 +3,119 @@ const mongoose = require("mongoose");
 const homePageSchema = new mongoose.Schema(
   {
     heroSection: {
-      title: { type: String },
-      subtitle: { type: String },
-      backgroundImage: { type: String },
-      buttonText: { type: String },
-      ctaLink: { type: String },
+      title: { type: String, trim: true },
+      subtitle: { type: String, trim: true },
+      backgroundImage: { type: String, trim: true },
+      buttonText: { type: String, trim: true },
+      ctaLink: { type: String, trim: true },
     },
-    bannerSection1: {
-      heading: { type: String },
+
+    howDoesItWorkHeading: {
+      heading: { type: String, trim: true },
     },
-    bannerSectionCards1: [
-      {
-        title: { type: String },
-        icon: { type: String },
-        description: { type: String },
-      },
-    ],
-    bannerSection2: {
-      heading: { type: String },
+    howDoesItWorkContent: {
+      type: [
+        {
+          _id: false,
+          title: { type: String, trim: true },
+          icon: { type: String, trim: true },
+          description: { type: String, trim: true },
+        },
+      ],
+      default: [],
     },
-    bannerSectionCards2: [
-      {
-        title: { type: String },
-        icon: { type: String },
-        description: { type: String },
-      },
-    ],
-    bannerSection3: {
-      heading: { type: String },
+
+    articlesHeading: {
+      heading: { type: String, trim: true },
     },
-    bannerSectionCards3: [
-      {
-        title: { type: String },
-        icon: { type: String },
-        description: { type: String },
-      },
-    ],
-    bannerSection4: {
-      heading: { type: String },
+    // articleContent: {
+    //   type: [
+    //     {
+    //       _id: false,
+    //       title: { type: String, trim: true },
+    //       icon: { type: String, trim: true },
+    //       description: { type: String, trim: true },
+    //     },
+    //   ],
+    //   default: [],
+    // },
+
+    whyChooseMeglerTipHeading: {
+      heading: { type: String, trim: true },
     },
-    bannerSectionCards4: [
-      {
-        title: { type: String },
-        image: { type: String },
-        icon: { type: String },
-        lists: [{ type: String }],
-        buttonText: { type: String },
-      },
-    ],
-    citySection: {
-      title: { type: String },
-      description: { type: String },
+    whyChooseMeglerTipContent: {
+      type: [
+        {
+          _id: false,
+          title: { type: String, trim: true },
+          icon: { type: String, trim: true },
+          description: { type: String, trim: true },
+        },
+      ],
+      default: [],
     },
-    bannerSectionCards5: [
-      {
-        title: { type: String },
-        description: { type: String },
-        image: { type: String },
-        buttonText: { type: String },
-      },
-    ],
-    bannerSectionCards6: [
-      {
-        title: { type: String },
-        subTitle: { type: String },
-        image: { type: String },
-        buttonText: { type: String },
-        icon: { type: String },
-        lists: [{ type: String }],
-        description: { type: String },
-      },
-    ],
-    articleSection: {
-      heading: { type: String },
+
+    factorsAffectingContent: {
+      type: [
+        {
+          _id: false,
+          title: { type: String, trim: true },
+          image: { type: String, trim: true },
+          icon: { type: String, trim: true },
+          lists: [{ type: String, trim: true }],
+          buttonText: { type: String, trim: true },
+        },
+      ],
+      default: [],
+    },
+
+    salesGuide: {
+      title: { type: String, trim: true },
+      description: { type: String, trim: true },
+    },
+
+    realEstateAgents: {
+      type: [
+        {
+          _id: false,
+          title: { type: String, trim: true },
+          description: { type: String, trim: true },
+          image: { type: String, trim: true },
+          buttonText: { type: String, trim: true },
+        },
+      ],
+      default: [],
+    },
+
+    summaryOfBenefit: {
+      type: [
+        {
+          _id: false,
+          title: { type: String, trim: true },
+          subTitle: { type: String, trim: true },
+          lists: [{ type: String, trim: true }],
+          image: { type: String, trim: true },
+          buttonText: { type: String, trim: true },
+          icon: { type: String, trim: true },
+          description: { type: String, trim: true },
+        },
+      ],
+      default: [],
+    },
+
+    latestInsights: {
+      heading: { type: String, trim: true },
+    },
+    latestInsightButton: {
+      buttonText: { type: String, trim: true },
+      buttonColor: { type: String, trim: true },
+    },
+
+    faqHeading: {
+      heading: { type: String, trim: true },
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("homePage", homePageSchema);
+module.exports = mongoose.model("HomePage", homePageSchema);
