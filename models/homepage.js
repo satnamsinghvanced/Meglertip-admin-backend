@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const homePageSchema = new mongoose.Schema(
   {
     heroSection: {
-      title: { type: String },
-      subtitle: { type: String },
-      backgroundImage: { type: String },
-      buttonText: { type: String },
-      ctaLink: { type: String },
+      title: { type: String, trim: true },
+      subtitle: { type: String, trim: true },
+      backgroundImage: { type: String, trim: true },
+      buttonText: { type: String, trim: true },
+      ctaLink: { type: String, trim: true },
     },
     howDoesItworks: {
       heading: { type: String },
@@ -56,4 +56,4 @@ const homePageSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-module.exports = mongoose.model("homePage", homePageSchema);
+module.exports = mongoose.model("HomePage", homePageSchema);
