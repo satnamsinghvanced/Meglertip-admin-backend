@@ -25,12 +25,8 @@ exports.createAbout = async (req, res) => {
 
 exports.getAbout = async (req, res) => {
   try {
-    const abouts = await About.find().sort({ createdAt: -1 });
-    res.status(200).json({
-      success: true,
-      message: "All About records fetched successfully.",
-      data: abouts,
-    });
+    const about = await About.findOne() || {};
+    res.json({ success: true, data: about });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -56,28 +52,17 @@ exports.getSingleAbout = async (req, res) => {
 
 exports.updateAbout = async (req, res) => {
   try {
-    const { heading, subHeading, heading1, subHeading1 } = req.body;
-    const updateData = { heading, subHeading, heading1, subHeading1 };
-
-    if (req.file) updateData.image = `/uploads/${req.file.filename}`;
-
-    const about = await About.findByIdAndUpdate(req.params.id, updateData, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!about)
-      return res
-        .status(404)
-        .json({ success: false, message: "About record not found" });
-
-    res.status(200).json({
-      success: true,
-      message: "About updated successfully",
-      data: about,
-    });
+    const { heading, subHeading, image, heading1, subHeading1 } = req.body;
+    let about = await About.findOne();
+    if (!about) {
+      about = new About({ heading, subHeading, image, heading1, subHeading1 });
+    } else {
+      Object.assign(about, { heading, subHeading, image, heading1, subHeading1 });
+    }
+    await about.save();
+    res.json({ success: true, message: "About page updated", data: about });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
