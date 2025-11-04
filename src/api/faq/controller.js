@@ -30,8 +30,8 @@ exports.getFAQs = async (req, res) => {
                 };
             })
         );
-
-    res.json({ success: true, data: data });
+   const filteredData = data.filter((cat) => cat.faqs && cat.faqs.length > 0);
+    res.json({ success: true, data: filteredData });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
