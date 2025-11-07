@@ -10,6 +10,7 @@ const homepageRoutes = require("./homepage/route");
 const articleCategoryRoutes = require("./articleCategory/route");
 const articleRoutes = require("./article/route");
 const aboutRoutes = require("./about/route");
+const partnerRoutes = require("./partner/route");
 
 const router = express.Router();
 router.use("/admin", adminRoutes);
@@ -22,5 +23,6 @@ router.use("/homepage", homepageRoutes);
 router.use("/article-categories", articleCategoryRoutes);
 router.use("/article", articleRoutes);
 router.use("/about", aboutRoutes);
+router.use("/partner", partnerRoutes);
 
 module.exports = router;
