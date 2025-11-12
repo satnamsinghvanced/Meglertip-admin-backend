@@ -12,6 +12,7 @@ const articleRoutes = require("./article/route");
 const aboutRoutes = require("./about/route");
 const partnerRoutes = require("./partner/route");
 const countyRoutes = require("./county/route");
+const formsRoutes = require("./forms/route")
 
 const router = express.Router();
 router.use("/admin", adminRoutes);
@@ -26,5 +27,7 @@ router.use("/article", articleRoutes);
 router.use("/about", aboutRoutes);
 router.use("/partner", partnerRoutes);
 router.use("/county", countyRoutes);
+router.use("/forms", formsRoutes)
+
 
 module.exports = router;
