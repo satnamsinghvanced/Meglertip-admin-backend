@@ -13,6 +13,8 @@ const aboutRoutes = require("./about/route");
 const partnerRoutes = require("./partner/route");
 const countyRoutes = require("./county/route");
 const formsRoutes = require("./forms/route")
+const privacyPolicyRoutes = require("./privacyPolicy/route");
+const termOfServiceRoutes = require("./termofservice/route")
 
 const router = express.Router();
 router.use("/admin", adminRoutes);
@@ -28,6 +30,9 @@ router.use("/about", aboutRoutes);
 router.use("/partner", partnerRoutes);
 router.use("/county", countyRoutes);
 router.use("/forms", formsRoutes)
+router.use("/privacy-policy", privacyPolicyRoutes);
+router.use("/term-of-service", termOfServiceRoutes);
+
 
 
 module.exports = router;
