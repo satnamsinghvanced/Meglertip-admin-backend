@@ -1,4 +1,4 @@
-const Cities = require("../../../models/cities");
+const Cities = require("../../../models/places");
 
 exports.create = async (req, res) => {
   try {
