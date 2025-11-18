@@ -7,19 +7,28 @@ const companySchema = new mongoose.Schema(
       unique: true,
       trim: true,
     },
+    companyImage: {
+      type: String,
+    },
     city: {
       type: String,
     },
     address: {
       type: String,
     },
-    phone: {
+    description: {
       type: String,
     },
-    website: {
+    extractor:{
+      type: [String],
+    },
+    brokerSites: {
+      type: [String],
+    },
+    websiteAddress: {
       type: String,
     },
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("company", companySchema);
+module.exports = mongoose.model("Company", companySchema);

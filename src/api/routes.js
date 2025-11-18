@@ -16,6 +16,7 @@ const formsRoutes = require("./forms/route")
 const privacyPolicyRoutes = require("./privacyPolicy/route");
 const termOfServiceRoutes = require("./termofservice/route")
 const emailTemplateRoutes = require("./email-templates/route")
+const uploadCSV = require("./upload/route")
 
 const router = express.Router();
 router.use("/admin", adminRoutes);
@@ -34,6 +35,7 @@ router.use("/forms", formsRoutes)
 router.use("/privacy-policy", privacyPolicyRoutes);
 router.use("/term-of-service", termOfServiceRoutes);
 router.use("/email-templates", emailTemplateRoutes);
+router.use("/upload", uploadCSV)
 
 
 

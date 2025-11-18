@@ -1,4 +1,4 @@
-const Cities = require("../../../models/places");
+const County = require("../../../models/county");
 
 exports.create = async (req, res) => {
   try {
@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
       });
     }
 
-    const existingCity = await Cities.findOne({
+    const existingCity = await County.findOne({
       $or: [
         { title: title.trim() },
         { slug: slug.trim() },
@@ -44,7 +44,7 @@ exports.create = async (req, res) => {
       });
     }
 
-    const newCity = await Cities.create({
+    const newCity = await County.create({
       name: name.trim(),
       countyId,
       slug: slug.trim(),
@@ -94,17 +94,17 @@ exports.getCities = async (req, res) => {
     const sortField = sortBy || "createdAt";
     const sortDirection = sortOrder === "asc" ? 1 : -1;
 
-    const total = await Cities.countDocuments(filter);
+    const total = await County.countDocuments(filter);
 
-    const cities = await Cities.find(filter)
-      .populate("countyId", "name slug")
+    const cities = await County.find(filter)
+      // .populate("countyId", "name slug")
       .skip(skip)
       .limit(limit)
       .sort({ [sortField]: sortDirection });
 
     res.status(200).json({
       success: true,
-      message: "Cities fetched successfully.",
+      message: "County fetched successfully.",
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalCities: total,
@@ -118,7 +118,7 @@ exports.getCities = async (req, res) => {
 exports.getCityById = async (req, res) => {
   try {
     const { id } = req.params;
-    const city = await Cities.findById(id).populate("countyId", "name slug");
+    const city = await County.findById(id).populate("countyId", "name slug");
     if (!city) {
       return res
         .status(404)
@@ -166,7 +166,7 @@ exports.update = async (req, res) => {
       updatedFields.image = `uploads/${imageFile.filename}`;
     }
 
-    const updatedCity = await Cities.findByIdAndUpdate(id, updatedFields, {
+    const updatedCity = await County.findByIdAndUpdate(id, updatedFields, {
       new: true,
       runValidators: true,
     });
@@ -190,7 +190,7 @@ exports.update = async (req, res) => {
 exports.deleteCity = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedCity = await Cities.findByIdAndDelete(id);
+    const deletedCity = await County.findByIdAndDelete(id);
     if (!deletedCity) {
       return res
         .status(404)
