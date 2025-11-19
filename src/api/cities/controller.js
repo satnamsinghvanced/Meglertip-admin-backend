@@ -1,4 +1,4 @@
-const County = require("../../../models/county");
+const County = require("../../../models/places");
 
 exports.create = async (req, res) => {
   try {
@@ -71,7 +71,8 @@ exports.getCities = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { search, countyId, isRecommended, sortBy, sortOrder } = req.query;
+
+    const { search, sortBy, sortOrder } = req.query;
 
     const filter = {};
 
@@ -79,39 +80,29 @@ exports.getCities = async (req, res) => {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
         { slug: { $regex: search, $options: "i" } },
-        { title: { $regex: search, $options: "i" } },
       ];
     }
-
-    if (countyId) {
-      filter.countyId = countyId;
-    }
-
-    if (isRecommended !== undefined) {
-      filter.isRecommended = isRecommended === "true";
-    }
-
-    const sortField = sortBy || "createdAt";
+    
+    const sortField = sortBy || "name";
     const sortDirection = sortOrder === "asc" ? 1 : -1;
 
     const total = await County.countDocuments(filter);
 
-    const cities = await County.find(filter)
-      // .populate("countyId", "name slug")
+    const counties = await County.find(filter)
       .skip(skip)
       .limit(limit)
       .sort({ [sortField]: sortDirection });
 
     res.status(200).json({
       success: true,
-      message: "County fetched successfully.",
+      message: "Counties fetched successfully.",
       currentPage: page,
       totalPages: Math.ceil(total / limit),
-      totalCities: total,
-      data: cities,
+      totalCounties: total,
+      data: counties,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

@@ -16,6 +16,12 @@ const companySchema = new mongoose.Schema(
     address: {
       type: String,
     },
+      email: {
+      type: String,
+    },
+      zipCode: {
+      type: String,
+    },
     description: {
       type: String,
     },

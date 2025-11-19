@@ -13,6 +13,6 @@ router.post("/create", createCompany);
 router.get("/", getCompanies);
 router.get("/detail/:id", getCompanyById);
 router.put("/update/:id", updateCompany);
-router.delete("/delete", deleteCompany);
+router.delete("/delete/:id", deleteCompany);
 
 module.exports = router;

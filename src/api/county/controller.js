@@ -34,14 +34,41 @@ exports.createCounty = async (req, res) => {
 
 exports.getCounties = async (req, res) => {
   try {
-    const counties = await County.find().sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const { search, sortBy, sortOrder } = req.query;
+
+    const filter = {};
+
+    if (search) {
+      filter.$or = [
+        { name: { $regex: search, $options: "i" } },
+        { slug: { $regex: search, $options: "i" } },
+      ];
+    }
+    
+    const sortField = sortBy || "name";
+    const sortDirection = sortOrder === "asc" ? 1 : -1;
+
+    const total = await County.countDocuments(filter);
+
+    const counties = await County.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ [sortField]: sortDirection });
+
     res.status(200).json({
       success: true,
-      message: "County fetched successfully.",
+      message: "Counties fetched successfully.",
+      currentPage: page,
+      totalPages: Math.ceil(total / limit),
+      totalCounties: total,
       data: counties,
     });
-  } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
