@@ -14,10 +14,12 @@ const partnerRoutes = require("./partner/route");
 const countyRoutes = require("./county/route");
 const formsRoutes = require("./forms/route");
 const privacyPolicyRoutes = require("./privacyPolicy/route");
-const termOfServiceRoutes = require("./termofservice/route")
-const emailTemplateRoutes = require("./email-templates/route")
-const uploadCSV = require("./upload/route")
-const themeRoutes = require("./theme/route");
+const termOfServiceRoutes = require("./termofservice/route");
+const emailTemplateRoutes = require("./email-templates/route");
+const uploadCSV = require("./upload/route");
+const termOfServiceRoutes = require("./termofservice/route");
+const emailTemplateRoutes = require("./email-templates/route");
+const website_settingsRoutes = require("./website_settings/route");
 
 const router = express.Router();
 router.use("/admin", adminRoutes);
@@ -36,9 +38,7 @@ router.use("/forms", formsRoutes);
 router.use("/privacy-policy", privacyPolicyRoutes);
 router.use("/term-of-service", termOfServiceRoutes);
 router.use("/email-templates", emailTemplateRoutes);
-router.use("/upload", uploadCSV)
-
-
-router.use("/theme",themeRoutes)
+router.use("/upload", uploadCSV);
+router.use("/website_settings", website_settingsRoutes);
 
 module.exports = router;
