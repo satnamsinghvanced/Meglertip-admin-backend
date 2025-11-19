@@ -15,9 +15,7 @@ const countyRoutes = require("./county/route");
 const formsRoutes = require("./forms/route");
 const privacyPolicyRoutes = require("./privacyPolicy/route");
 const termOfServiceRoutes = require("./termofservice/route");
-const emailTemplateRoutes = require("./email-templates/route");
 const uploadCSV = require("./upload/route");
-const termOfServiceRoutes = require("./termofservice/route");
 const emailTemplateRoutes = require("./email-templates/route");
 const website_settingsRoutes = require("./website_settings/route");
 
