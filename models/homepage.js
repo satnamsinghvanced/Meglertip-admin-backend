@@ -22,6 +22,9 @@ const homePageSchema = new mongoose.Schema(
     ourArticlesHeading: {
       heading: { type: String },
     },
+     articlesHeading: {
+      heading: { type: String },
+    },
     whyChooseMeglertipHeading: {
       heading: { type: String },
     },

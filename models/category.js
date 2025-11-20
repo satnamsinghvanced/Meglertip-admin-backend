@@ -7,9 +7,9 @@ const categorySchema = new mongoose.Schema(
       trim: true,
     },
     description:{
-        type:String,
-        
-    }
+        type:String,  
+    }, 
+    categotyPosition: {type:Number , required: true}
   },
   { timestamps: true }
 );

@@ -1,4 +1,4 @@
-const Cities = require("../../../models/cities");
+const County = require("../../../models/places");
 
 exports.create = async (req, res) => {
   try {
@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
       });
     }
 
-    const existingCity = await Cities.findOne({
+    const existingCity = await County.findOne({
       $or: [
         { title: title.trim() },
         { slug: slug.trim() },
@@ -44,7 +44,7 @@ exports.create = async (req, res) => {
       });
     }
 
-    const newCity = await Cities.create({
+    const newCity = await County.create({
       name: name.trim(),
       countyId,
       slug: slug.trim(),
@@ -71,7 +71,8 @@ exports.getCities = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
-    const { search, countyId, isRecommended, sortBy, sortOrder } = req.query;
+
+    const { search, sortBy, sortOrder } = req.query;
 
     const filter = {};
 
@@ -79,46 +80,36 @@ exports.getCities = async (req, res) => {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
         { slug: { $regex: search, $options: "i" } },
-        { title: { $regex: search, $options: "i" } },
       ];
     }
-
-    if (countyId) {
-      filter.countyId = countyId;
-    }
-
-    if (isRecommended !== undefined) {
-      filter.isRecommended = isRecommended === "true";
-    }
-
-    const sortField = sortBy || "createdAt";
+    
+    const sortField = sortBy || "name";
     const sortDirection = sortOrder === "asc" ? 1 : -1;
 
-    const total = await Cities.countDocuments(filter);
+    const total = await County.countDocuments(filter);
 
-    const cities = await Cities.find(filter)
-      .populate("countyId", "name slug")
+    const counties = await County.find(filter)
       .skip(skip)
       .limit(limit)
       .sort({ [sortField]: sortDirection });
 
     res.status(200).json({
       success: true,
-      message: "Cities fetched successfully.",
+      message: "Counties fetched successfully.",
       currentPage: page,
       totalPages: Math.ceil(total / limit),
-      totalCities: total,
-      data: cities,
+      totalCounties: total,
+      data: counties,
     });
   } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
 exports.getCityById = async (req, res) => {
   try {
     const { id } = req.params;
-    const city = await Cities.findById(id).populate("countyId", "name slug");
+    const city = await County.findById(id).populate("countyId", "name slug");
     if (!city) {
       return res
         .status(404)
@@ -166,7 +157,7 @@ exports.update = async (req, res) => {
       updatedFields.image = `uploads/${imageFile.filename}`;
     }
 
-    const updatedCity = await Cities.findByIdAndUpdate(id, updatedFields, {
+    const updatedCity = await County.findByIdAndUpdate(id, updatedFields, {
       new: true,
       runValidators: true,
     });
@@ -190,7 +181,7 @@ exports.update = async (req, res) => {
 exports.deleteCity = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedCity = await Cities.findByIdAndDelete(id);
+    const deletedCity = await County.findByIdAndDelete(id);
     if (!deletedCity) {
       return res
         .status(404)

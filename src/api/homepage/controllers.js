@@ -65,7 +65,7 @@ exports.updateHowItWorks = async (req, res) => {
 exports.getArticlesHeading = async (req, res) => {
   try {
     const home = await getOrCreateHomePage();
-    res.status(200).json({ success: true, data: home.ourArticlesHeading });
+    res.status(200).json({ success: true, data: home.articlesHeading });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -75,9 +75,33 @@ exports.updateArticlesHeading = async (req, res) => {
   try {
     const { heading } = req.body;
     const home = await getOrCreateHomePage();
-    home.ourArticlesHeading = { heading };
+    home.articlesHeading = { heading };
     await home.save();
     res.status(200).json({ success: true, message: "Articles heading updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+
+
+exports.getCategoryHeading = async (req, res) => {
+  try {
+    const home = await getOrCreateHomePage();
+    res.status(200).json({ success: true, data: home.ourArticlesHeading });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.updateCategoryHeading = async (req, res) => {
+  try {
+    const { heading } = req.body;
+    const home = await getOrCreateHomePage();
+    home.ourArticlesHeading = { heading };
+    await home.save();
+    res.status(200).json({ success: true, message: "Category heading updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }

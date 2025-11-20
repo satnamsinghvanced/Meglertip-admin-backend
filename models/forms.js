@@ -12,7 +12,7 @@ const FieldSchema = new mongoose.Schema({
 
 const StepSchema = new mongoose.Schema({
   stepTitle: { type: String, required: true, default: "" },      
-  stepOrder: { type: Number, required: true, default: 1 },       
+  stepOrder: { type: Number, required: true },       
   fields: { type: [FieldSchema], default: [] },                  
   visible: { type: Boolean, default: true },                     
 });

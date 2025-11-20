@@ -2,9 +2,19 @@ const Company = require("../../../models/companies");
 
 exports.createCompany = async (req, res) => {
   try {
-    const { companyName, city, address, phone, website } = req.body;
+    const {
+      companyName,
+      companyImage,
+      address,
+      email,
+      websiteAddress,
+      zipCode,
+      description,
+      extractor,
+      brokerSites,
+    } = req.body;
 
-    const existingCompany = await Company.findOne({ companyName });
+    const existingCompany = await Company.findOne({ email });
     if (existingCompany) {
       return res
         .status(400)
@@ -13,10 +23,14 @@ exports.createCompany = async (req, res) => {
 
     const newCompany = new Company({
       companyName,
-      city,
+      companyImage,
+      email,
       address,
-      phone,
-      website,
+      zipCode,
+      websiteAddress,
+      description,
+      extractor,
+      brokerSites,
     });
 
     await newCompany.save();
@@ -32,11 +46,21 @@ exports.createCompany = async (req, res) => {
 
 exports.getCompanies = async (req, res) => {
   try {
-    const companies = await Company.find();
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const totalCompanies = await Company.countDocuments();
+
+    const companies = await Company.find().skip(skip).limit(limit).sort({ createdAt: -1 });
+
     res.status(200).json({
       success: true,
       message: "Companies fetched successfully.",
       data: companies,
+      currentPage: page,
+      totalPages: Math.ceil(totalCompanies / limit),
+      totalCompanies: totalCompanies,
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -45,8 +69,8 @@ exports.getCompanies = async (req, res) => {
 
 exports.getCompanyById = async (req, res) => {
   try {
-    const { id } = req.query;
-    const company = await Company.findById(id);
+    // const { id } = req.query;
+    const company = await Company.findById(req.params.id);
 
     if (!company) {
       return res
@@ -66,11 +90,16 @@ exports.getCompanyById = async (req, res) => {
 
 exports.updateCompany = async (req, res) => {
   try {
-    const { id } = req.query;
-
-    const updatedCompany = await Company.findByIdAndUpdate(id, req.body, {
-      new: true,
-    });
+    const { id } = req.params;
+    // console.log("REQ BODY:", req.body);
+    const updatedCompany = await Company.findByIdAndUpdate(
+      id,
+      { $set: req.body },
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     if (!updatedCompany) {
       return res
@@ -90,7 +119,7 @@ exports.updateCompany = async (req, res) => {
 
 exports.deleteCompany = async (req, res) => {
   try {
-    const { id } = req.query;
+    const { id } = req.params;
 
     const deletedCompany = await Company.findByIdAndDelete(id);
     if (!deletedCompany) {

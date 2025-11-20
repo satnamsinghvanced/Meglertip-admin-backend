@@ -15,6 +15,11 @@ router.put("/how-it-works", controller.updateHowItWorks);
 router.get("/articles-heading", controller.getArticlesHeading);
 router.put("/articles-heading", controller.updateArticlesHeading);
 
+
+// category
+router.get("/category-heading", controller.getCategoryHeading);
+router.put("/category-heading", controller.updateCategoryHeading);
+
 // Why Choose
 router.get("/why-choose", controller.getWhyChoose);
 router.put("/why-choose", controller.updateWhyChoose);
