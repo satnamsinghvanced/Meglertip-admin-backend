@@ -39,7 +39,6 @@ router.use("/forms", formsRoutes);
 router.use("/privacy-policy", privacyPolicyRoutes);
 router.use("/term-of-service", termOfServiceRoutes);
 router.use("/quote", quoteRoutes);
-
 router.use("/email-templates", emailTemplateRoutes);
 router.use("/upload", uploadCSV);
 router.use("/website_settings", website_settingsRoutes);

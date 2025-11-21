@@ -160,28 +160,35 @@ exports.deleteTheme = async (req, res) => {
 
 exports.uploadLogo = async (req, res) => {
   try {
-    if (!req.files || Object.keys(req.files).length === 0) {
-      return sendErrorResponse(res, "No files were uploaded", 400);
+    if (!req.files && Object.keys(req.body).length === 0) {
+      return sendErrorResponse(res, "No data provided", 400);
     }
-    const logos = {
-      logo: req.files.logo ? req.files.logo[0].path : undefined,
-      logoDark: req.files.logoDark ? req.files.logoDark[0].path : undefined,
-      wordmark: req.files.wordmark ? req.files.wordmark[0].path : undefined,
-      wordmarkDark: req.files.wordmarkDark
-        ? req.files.wordmarkDark[0].path
-        : undefined,
-      lettermark: req.files.lettermark
-        ? req.files.lettermark[0].path
-        : undefined,
-      tagline: req.files.tagline ? req.files.tagline[0].path : undefined,
-    };
-
     const theme = await Website_Settings.findById(req.query.id);
     if (!theme) return sendErrorResponse(res, "Theme not found", 404);
-
-    theme.logos = { ...theme.logos, ...logos };
+    if (req.files?.logo) {
+      theme.logos.logo = req.files.logo[0].path;
+    }
+    if (req.files?.logoDark) {
+      theme.logos.logoDark = req.files.logoDark[0].path;
+    }
+    if (req.files?.wordmark) {
+      theme.logos.wordmark = req.files.wordmark[0].path;
+    } else if (req.body.wordmarkText) {
+      theme.logos.wordmark = req.body.wordmarkText;
+      t;
+    }
+    if (req.files?.wordmarkDark) {
+      theme.logos.wordmarkDark = req.files.wordmarkDark[0].path;
+    } else if (req.body.wordmarkDarkText) {
+      theme.logos.wordmarkDark = req.body.wordmarkDarkText;
+    }
+    if (req.files?.lettermark) {
+      theme.logos.lettermark = req.files.lettermark[0].path;
+    }
+    if (req.files?.tagline) {
+      theme.logos.tagline = req.files.tagline[0].path;
+    }
     await theme.save();
-
     sendSuccessResponse(res, "Logos updated successfully.", theme);
   } catch (error) {
     handleValidationError(error, res);
