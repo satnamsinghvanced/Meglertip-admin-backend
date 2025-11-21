@@ -4,7 +4,7 @@ const adminRoutes = require("./admin/route");
 const imageUpload = require("./upload/route");
 const faqRoutes = require("./faq/route");
 const categoryRoutes = require("./category/route");
-const placeRoutes = require("./cities/route");
+const placeRoutes = require("./place/route");
 const companiesRoutes = require("./companies/route");
 const homepageRoutes = require("./homepage/route");
 const articleCategoryRoutes = require("./articleCategory/route");
@@ -20,6 +20,10 @@ const quoteRoutes = require("./quote/route");
 const uploadCSV = require("./upload/route");
 const emailTemplateRoutes = require("./email-templates/route");
 const website_settingsRoutes = require("./website_settings/route");
+const realEstateAgentRoutes = require("./realEstateAgent/route");
+const footerRoutes = require("./footer/route");
+const sitemapRoutes = require("./sitemap/route")
+
 
 const router = express.Router();
 router.use("/admin", adminRoutes);
@@ -39,9 +43,10 @@ router.use("/forms", formsRoutes);
 router.use("/privacy-policy", privacyPolicyRoutes);
 router.use("/term-of-service", termOfServiceRoutes);
 router.use("/quote", quoteRoutes);
-
 router.use("/email-templates", emailTemplateRoutes);
 router.use("/upload", uploadCSV);
 router.use("/website_settings", website_settingsRoutes);
-
+router.use("/real-estate-agent", realEstateAgentRoutes);
+router.use("/footer", footerRoutes);
+router.use("/sitemap", sitemapRoutes)
 module.exports = router;

@@ -2,7 +2,7 @@ const ArticleCategory = require("../../../models/articleCategory");
 
 exports.createArticleCategory = async (req, res) => {
   try {
-    const { title, slug, description, language, originalSlug } = req.body;
+    const { title, slug, description, categoryPosition } = req.body;
 
     const existing = await ArticleCategory.findOne({ slug });
     if (existing) {
@@ -15,8 +15,7 @@ exports.createArticleCategory = async (req, res) => {
       title,
       slug,
       description,
-      language,
-      originalSlug,
+      categoryPosition
     });
 
     await newCategory.save();
