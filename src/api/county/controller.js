@@ -2,8 +2,8 @@ const County = require("../../../models/county");
 
 exports.createCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt } = req.body;
-    if (!name || !slug || !excerpt) {
+    const { name, slug } = req.body;
+    if (!name || !slug ) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
@@ -19,7 +19,6 @@ exports.createCounty = async (req, res) => {
     const county = await County.create({
       name: name.trim(),
       slug: slug.trim(),
-      excerpt: excerpt.trim(),
     });
 
     res.status(201).json({
@@ -49,7 +48,7 @@ exports.getCounties = async (req, res) => {
       ];
     }
     
-    const sortField = sortBy || "name";
+    const sortField = sortBy || "createdAt";
     const sortDirection = sortOrder === "asc" ? 1 : -1;
 
     const total = await County.countDocuments(filter);
@@ -65,6 +64,19 @@ exports.getCounties = async (req, res) => {
       currentPage: page,
       totalPages: Math.ceil(total / limit),
       totalCounties: total,
+      data: counties,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+exports.getCountiesForPlace = async (req, res) => {
+  try {
+
+    const counties = await County.find()
+    res.status(200).json({
+      success: true,
+      message: "Counties fetched successfully.",
       data: counties,
     });
   } catch (error) {
@@ -88,11 +100,11 @@ exports.getCountyById = async (req, res) => {
 
 exports.updateCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt } = req.body;
+    const { name, slug } = req.body;
 
     const county = await County.findByIdAndUpdate(
       req.params.id,
-      { name, slug, excerpt },
+      { name, slug },
       { new: true, runValidators: true }
     );
 

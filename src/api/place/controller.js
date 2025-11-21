@@ -1,4 +1,4 @@
-const County = require("../../../models/places");
+const Place = require("../../../models/places");
 
 exports.create = async (req, res) => {
   try {
@@ -29,7 +29,7 @@ exports.create = async (req, res) => {
       });
     }
 
-    const existingCity = await County.findOne({
+    const existingCity = await Place.findOne({
       $or: [
         { title: title.trim() },
         { slug: slug.trim() },
@@ -44,7 +44,7 @@ exports.create = async (req, res) => {
       });
     }
 
-    const newCity = await County.create({
+    const newCity = await Place.create({
       name: name.trim(),
       countyId,
       slug: slug.trim(),
@@ -86,9 +86,9 @@ exports.getCities = async (req, res) => {
     const sortField = sortBy || "name";
     const sortDirection = sortOrder === "asc" ? 1 : -1;
 
-    const total = await County.countDocuments(filter);
+    const total = await Place.countDocuments(filter);
 
-    const counties = await County.find(filter)
+    const counties = await Place.find(filter)
       .skip(skip)
       .limit(limit)
       .sort({ [sortField]: sortDirection });
@@ -109,7 +109,7 @@ exports.getCities = async (req, res) => {
 exports.getCityById = async (req, res) => {
   try {
     const { id } = req.params;
-    const city = await County.findById(id).populate("countyId", "name slug");
+    const city = await Place.findById(id).populate("countyId", "name slug");
     if (!city) {
       return res
         .status(404)
@@ -157,7 +157,7 @@ exports.update = async (req, res) => {
       updatedFields.image = `uploads/${imageFile.filename}`;
     }
 
-    const updatedCity = await County.findByIdAndUpdate(id, updatedFields, {
+    const updatedCity = await Place.findByIdAndUpdate(id, updatedFields, {
       new: true,
       runValidators: true,
     });
@@ -181,7 +181,7 @@ exports.update = async (req, res) => {
 exports.deleteCity = async (req, res) => {
   try {
     const { id } = req.params;
-    const deletedCity = await County.findByIdAndDelete(id);
+    const deletedCity = await Place.findByIdAndDelete(id);
     if (!deletedCity) {
       return res
         .status(404)

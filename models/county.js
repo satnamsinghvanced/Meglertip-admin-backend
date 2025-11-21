@@ -9,16 +9,7 @@ const countySchema = new mongoose.Schema(
     },
     slug: {
       type: String,
-     
     },
-    excerpt: {
-      type: String,
-
-    },
-    placeId:{
-      type: mongoose.Schema.Types.ObjectId,
-      ref:"places"
-    }
   },
   { timestamps: true }
 );

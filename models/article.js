@@ -13,6 +13,7 @@ const articleSchema = new mongoose.Schema(
     showDate: { type: String, required: true, default: () => new Date().toISOString().split("T")[0] }, 
     language: { type: String, required: true },
     originalSlug: { type: String },
+    articleTags:[{type:String}]
   },
   { timestamps: true }
 );
