@@ -44,12 +44,10 @@ exports.saveFooter = async (req, res) => {
 exports.updateFooterSettings = async (req, res) => {
   try {
     const data = req.body;
+    let settings = await Footer.findOne();
 
-    let settings = await FooterSettings.findOne();
-
-    // If no document exists, create a new one
     if (!settings) {
-      settings = await FooterSettings.create(data);
+      settings = await Footer.create(data);
       return res.status(201).json({
         success: true,
         message: "Footer settings created successfully",
@@ -57,8 +55,7 @@ exports.updateFooterSettings = async (req, res) => {
       });
     }
 
-    // Update existing document
-    settings = await FooterSettings.findOneAndUpdate({}, data, {
+    settings = await Footer.findOneAndUpdate({}, data, {
       new: true,
       runValidators: true,
     });

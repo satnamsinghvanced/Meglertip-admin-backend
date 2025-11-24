@@ -22,7 +22,9 @@ const emailTemplateRoutes = require("./email-templates/route");
 const website_settingsRoutes = require("./website_settings/route");
 const realEstateAgentRoutes = require("./realEstateAgent/route");
 const footerRoutes = require("./footer/route");
-const sitemapRoutes = require("./sitemap/route")
+const sitemapRoutes = require("./sitemap/route");
+const contactUsRoutes = require("./contactUs/route");
+const smtpRoutes = require("./SMTP/route")
 
 
 const router = express.Router();
@@ -48,5 +50,7 @@ router.use("/upload", uploadCSV);
 router.use("/website_settings", website_settingsRoutes);
 router.use("/real-estate-agent", realEstateAgentRoutes);
 router.use("/footer", footerRoutes);
-router.use("/sitemap", sitemapRoutes)
+router.use("/sitemap", sitemapRoutes);
+router.use("/contact", contactUsRoutes);
+router.use("/smtp" , smtpRoutes)
 module.exports = router;
