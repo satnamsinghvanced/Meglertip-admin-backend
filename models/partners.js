@@ -15,6 +15,12 @@ const partnersSchema = new mongoose.Schema(
       currentMonth: { type: Number, default: 0 },
       total: { type: Number, default: 0 },
     },
+    wishes: [
+      {
+        question: { type: String, required: true },
+        expectedAnswer: { type: String, required: true },
+      },
+    ],
   },
   { timestamps: true }
 );
