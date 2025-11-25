@@ -184,10 +184,10 @@ exports.questionForPartner = async (req, res) => {
     const questions = form.steps
       .sort((a, b) => a.stepOrder - b.stepOrder) 
       .flatMap(step => step.fields)
-      .filter(field => field.label && field.label.trim() !== "")
+      // .filter(field => field.label && field.label.trim() !== "")
       .map((field, index) => ({
         index: index + 1,   // Start index from 1
-        question: field.label,
+        question: field.name,
         // name: field.name    // Optional: helps match answers later
       }));
       
