@@ -22,7 +22,7 @@ exports.getFAQs = async (req, res) => {
 
         const data = await Promise.all(
             categories.map(async (category) => {
-                const faqs = await FAQ.find({ categoryId: category._id }).select("question answer");
+                const faqs = await FAQ.find({ categoryId: category._id }).select("question answer updatedAt");
                 ;
                 return {
                     ...category.toObject(),

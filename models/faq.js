@@ -16,7 +16,7 @@ const faqSchema = new mongoose.Schema(
       ref:"category",
 
     },
-    position: {type: Number , required : true}
+    position: {type: Number }
   },
   { timestamps: true }
 );

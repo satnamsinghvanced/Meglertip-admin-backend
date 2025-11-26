@@ -24,7 +24,9 @@ const realEstateAgentRoutes = require("./realEstateAgent/route");
 const footerRoutes = require("./footer/route");
 const sitemapRoutes = require("./sitemap/route");
 const contactUsRoutes = require("./contactUs/route");
-const smtpRoutes = require("./SMTP/route")
+const smtpRoutes = require("./SMTP/route");
+const dashboardRoutes = require("./dashboard/route");
+const leadLogsRoutes = require("./leadLogs/route")
 
 
 const router = express.Router();
@@ -52,5 +54,7 @@ router.use("/real-estate-agent", realEstateAgentRoutes);
 router.use("/footer", footerRoutes);
 router.use("/sitemap", sitemapRoutes);
 router.use("/contact", contactUsRoutes);
-router.use("/smtp" , smtpRoutes)
+router.use("/smtp" , smtpRoutes);
+router.use("/dashboard" , dashboardRoutes);
+router.use("/lead-logs",leadLogsRoutes)
 module.exports = router;

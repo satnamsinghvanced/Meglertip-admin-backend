@@ -172,28 +172,27 @@ exports.deletePartner = async (req, res) => {
   }
 };
 
-
 exports.questionForPartner = async (req, res) => {
   try {
-    const form = await Form.findOne(); 
+    const form = await Form.findOne();
 
     if (!form) {
-      return res.status(404).json({ success: false, message: "Form not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Form not found" });
     }
 
     const questions = form.steps
-      .sort((a, b) => a.stepOrder - b.stepOrder) 
-      .flatMap(step => step.fields)
+      .sort((a, b) => a.stepOrder - b.stepOrder)
+      .flatMap((step) => step.fields)
       // .filter(field => field.label && field.label.trim() !== "")
       .map((field, index) => ({
-        index: index + 1,   // Start index from 1
+        index: index + 1, // Start index from 1
         question: field.name,
         // name: field.name    // Optional: helps match answers later
       }));
-      
 
     res.json({ success: true, questions });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server error" });
