@@ -127,7 +127,7 @@ exports.getPartnerById = async (req, res) => {
 // UPDATE PARTNER
 exports.updatePartner = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.query;
 
     const {
       name,
