@@ -3,13 +3,45 @@ const Partner = require("../../../models/partners");
 
 exports.getDashboardStats = async (req, res) => {
   try {
-    const now = new Date();
-    const currentMonthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-    const lastMonthStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    const lastMonthEnd = new Date(now.getFullYear(), now.getMonth(), 0);
+    // Get date range from query
+    const { start, end } = req.query;
 
+    let startDate, endDate;
+
+    // If no range is provided → fallback to current month
+    if (!start || !end) {
+      const now = new Date();
+      startDate = new Date(now.getFullYear(), now.getMonth(), 1);
+      endDate = new Date(); // today
+    } else {
+      startDate = new Date(start);
+      endDate = new Date(end);
+      endDate.setHours(23, 59, 59, 999);
+    }
+
+    // For comparing growth (last month)
+    const lastMonthStart = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth() - 1,
+      1
+    );
+    const lastMonthEnd = new Date(
+      startDate.getFullYear(),
+      startDate.getMonth(),
+      0
+    );
+
+    // -----------------------------
+    // 🔥 TOP PARTNERS
+    // -----------------------------
     const topPartners = await User.aggregate([
-      { $unwind: "$partnerIds" },  
+      { $unwind: "$partnerIds" },
+
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
+      },
 
       {
         $group: {
@@ -23,7 +55,7 @@ exports.getDashboardStats = async (req, res) => {
 
       {
         $lookup: {
-          from: "collaboratepartners", 
+          from: "collaboratepartners",
           localField: "_id",
           foreignField: "_id",
           as: "partner",
@@ -41,16 +73,29 @@ exports.getDashboardStats = async (req, res) => {
       },
     ]);
 
-    const leadsCurrentMonth = await User.aggregate([
+    // -----------------------------
+    // 🔥 LEADS - CURRENT RANGE
+    // -----------------------------
+    const leadsCurrentRange = await User.aggregate([
       { $unwind: "$partnerIds" },
 
       {
-        $match: { createdAt: { $gte: currentMonthStart } },
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
       },
 
-      { $group: { _id: "$partnerIds", leads: { $sum: 1 } } },
+      {
+        $group: {
+          _id: "$partnerIds",
+          leads: { $sum: 1 },
+        },
+      },
     ]);
 
+    // -----------------------------
+    // 🔥 LEADS - LAST MONTH
+    // -----------------------------
     const leadsLastMonth = await User.aggregate([
       { $unwind: "$partnerIds" },
 
@@ -60,17 +105,26 @@ exports.getDashboardStats = async (req, res) => {
         },
       },
 
-      { $group: { _id: "$partnerIds", leads: { $sum: 1 } } },
+      {
+        $group: {
+          _id: "$partnerIds",
+          leads: { $sum: 1 },
+        },
+      },
     ]);
 
+    // Create map for easy lookup
     const lastMonthMap = {};
     leadsLastMonth.forEach((l) => {
       lastMonthMap[l._id] = l.leads;
     });
 
+    // -----------------------------
+    // 🔥 GROWTH DATA
+    // -----------------------------
     const growthData = await Promise.all(
-      leadsCurrentMonth.map(async (curr) => {
-        const partner = await Partner.findById(curr._id).select("name email");
+      leadsCurrentRange.map(async (curr) => {
+        const partner = await Partner.findById(curr._id).select("name");
 
         const prev = lastMonthMap[curr._id] || 0;
 
@@ -87,18 +141,52 @@ exports.getDashboardStats = async (req, res) => {
       })
     );
 
+    // -----------------------------
+    // 📈 TRENDLINE DATA
+    // -----------------------------
+    const trendlineData = await User.aggregate([
+      {
+        $match: {
+          createdAt: { $gte: startDate, $lte: endDate },
+        },
+      },
+
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          leads: { $sum: 1 },
+        },
+      },
+
+      { $sort: { "_id": 1 } },
+
+      {
+        $project: {
+          date: "$_id",
+          leads: 1,
+          _id: 0,
+        },
+      },
+    ]);
+
+    // -----------------------------
+    // 🔥 TOTAL STATS
+    // -----------------------------
     const totals = {
-     totalLeads: await User.countDocuments({
-  partnerIds: { $exists: true, $ne: [] }
-}),
+      totalLeads: await User.countDocuments({
+        createdAt: { $gte: startDate, $lte: endDate },
+      }),
       totalPartners: await Partner.countDocuments(),
-      leadsThisMonth: leadsCurrentMonth.reduce((a, b) => a + b.leads, 0),
+      leadsThisMonth: leadsCurrentRange.reduce((a, b) => a + b.leads, 0),
     };
 
     res.json({
       success: true,
       topPartners,
       growthData,
+      trendlineData,
       totals,
     });
   } catch (error) {

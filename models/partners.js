@@ -7,7 +7,20 @@ const partnersSchema = new mongoose.Schema(
     preferences: { type: String },
     address: { type: String },
     city: { type: String },
-    postalCodes: [{ type: String }],
+    postalCodes: {
+      exact: [
+        {
+          code: { type: String, required: true }, 
+        },
+      ],
+
+      ranges: [
+        {
+          from: { type: String, required: true }, 
+          to: { type: String, required: true }, 
+        },
+      ],
+    },
     isPremium: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     leads: {
@@ -15,6 +28,10 @@ const partnersSchema = new mongoose.Schema(
       currentMonth: { type: Number, default: 0 },
       total: { type: Number, default: 0 },
     },
+    leadType:{
+      type: String
+    },
+
     wishes: [
       {
         question: { type: String, required: true },

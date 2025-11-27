@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const slugify = require("slugify");
 const companySchema = new mongoose.Schema(
   {
     companyName: {
@@ -6,6 +7,10 @@ const companySchema = new mongoose.Schema(
       required: true,
       unique: true,
       trim: true,
+    },
+    slug: {
+      type: String,
+      unique: true,
     },
     companyImage: {
       type: String,
@@ -16,16 +21,16 @@ const companySchema = new mongoose.Schema(
     address: {
       type: String,
     },
-      email: {
+    email: {
       type: String,
     },
-      zipCode: {
+    zipCode: {
       type: String,
     },
     description: {
       type: String,
     },
-    extractor:{
+    extractor: {
       type: [String],
     },
     brokerSites: {
@@ -34,7 +39,26 @@ const companySchema = new mongoose.Schema(
     websiteAddress: {
       type: String,
     },
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
+    totalRating: {
+      type: Number,
+      default: 0,
+    },
+    isRecommended: {
+      type: Boolean,
+      default: false,
+    },
+    features: { type: [String] },
   },
   { timestamps: true }
 );
+companySchema.pre("save", function (next) {
+  if (this.isModified("companyName") || !this.slug) {
+    this.slug = slugify(this.companyName, { lower: true, strict: true });
+  }
+  next();
+});
 module.exports = mongoose.model("Company", companySchema);

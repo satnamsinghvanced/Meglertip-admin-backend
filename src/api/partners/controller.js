@@ -3,28 +3,43 @@ const Form = require("../../../models/forms");
 
 exports.createPartner = async (req, res) => {
   try {
-    const { name, email } = req.body;
-    if (!name)
-      return res
-        .status(400)
-        .json({ success: false, message: "Name is required" });
-    if (!email)
-      return res
-        .status(400)
-        .json({ success: false, message: "Email is required" });
-    const existing = await Partners.findOne({ email });
-    if (existing)
-      return res
-        .status(400)
-        .json({ success: false, message: "Email already exists" });
-    const partner = await Partners.create(req.body);
-    res.status(201).json({
-      success: true,
-      message: "Partner created successfully.",
-      data: partner,
+    const {
+      name,
+      email,
+      preferences,
+      address,
+      city,
+      isPremium,
+      isActive,
+      wishes,
+      postalCodes
+    } = req.body;
+
+    const newPartner = new Partners({
+      name,
+      email,
+      preferences,
+      address,
+      city,
+      isPremium,
+      isActive,
+      wishes,
+
+      postalCodes: {
+        exact: postalCodes?.exact?.map((c) => ({ code: c })) || [],
+        ranges: postalCodes?.ranges?.map((r) => ({
+          from: r.from,
+          to: r.to,
+        })) || [],
+      },
     });
+
+    await newPartner.save();
+    res.status(201).json({ success: true, data: newPartner });
+
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.error(error);
+    res.status(500).json({ success: false, message: "Server Error" });
   }
 };
 
@@ -109,46 +124,58 @@ exports.getPartnerById = async (req, res) => {
   }
 };
 
+// UPDATE PARTNER
 exports.updatePartner = async (req, res) => {
   try {
-    const { id } = req.query;
-    if (!id)
-      return res
-        .status(400)
-        .json({ success: false, message: "Partner ID is required" });
-    if (Object.keys(req.body).length === 0)
-      return res.status(400).json({
-        success: false,
-        message: "At least one field is required to update",
-      });
+    const { id } = req.params;
 
-    if (req.body.email) {
-      const existing = await Partners.findOne({
-        email: req.body.email,
-        _id: { $ne: id },
-      });
-      if (existing)
-        return res
-          .status(400)
-          .json({ success: false, message: "Email already exists" });
-    }
-    const partner = await Partners.findByIdAndUpdate(id, req.body, {
+    const {
+      name,
+      email,
+      preferences,
+      address,
+      city,
+      isPremium,
+      isActive,
+      wishes,
+      postalCodes
+    } = req.body;
+
+    const updateData = {
+      name,
+      email,
+      preferences,
+      address,
+      city,
+      isPremium,
+      isActive,
+      wishes,
+      postalCodes: {
+        exact: postalCodes?.exact?.map((c) => ({ code: c })) || [],
+        ranges: postalCodes?.ranges?.map((r) => ({
+          from: r.from,
+          to: r.to,
+        })) || [],
+      },
+    };
+
+    const updated = await Partners.findByIdAndUpdate(id, updateData, {
       new: true,
+      runValidators: true,
     });
-    if (!partner)
-      return res
-        .status(404)
-        .json({ success: false, message: "Partner not found" });
 
-    res.status(200).json({
-      success: true,
-      message: "Partner updated successfully.",
-      data: partner,
-    });
+    if (!updated) {
+      return res.status(404).json({ success: false, message: "Partner not found" });
+    }
+
+    res.json({ success: true, data: updated });
+
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    console.error(error);
+    res.status(500).json({ success: false, message: "Error updating partner" });
   }
 };
+
 
 exports.deletePartner = async (req, res) => {
   try {
