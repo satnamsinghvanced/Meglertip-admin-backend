@@ -2,7 +2,7 @@ const Article = require("../../../models/article");
 
 exports.createArticle = async (req, res) => {
   try {
-    const {
+    let {
       title,
       slug,
       excerpt,
@@ -10,42 +10,81 @@ exports.createArticle = async (req, res) => {
       createdBy,
       categoryId,
       showDate,
-      language,
-      originalSlug,
+      articleTags,
+      articlePosition,
     } = req.body;
 
-    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
-    const existingArticle = await Article.findOne({ slug: slug });
-    if (existingArticle) {
+    if (articleTags) {
+      try {
+        articleTags = JSON.parse(articleTags);
+      } catch {
+        articleTags = articleTags.split(",").map((t) => t.trim());
+      }
+    } else {
+      articleTags = [];
+    }
+
+    articlePosition = articlePosition ? Number(articlePosition) : null;
+
+    const existingArticle = await Article.findOne({ slug });
+    if (existingArticle)
       return res.status(400).json({
         success: false,
-        message: "Slug already exists. Please choose a different one.",
+        message: "Slug already exists.",
       });
+
+    if (articlePosition !== null) {
+      const articleWithSamePos = await Article.findOne({ articlePosition });
+
+      if (articleWithSamePos) {
+        await Article.findByIdAndUpdate(articleWithSamePos._id, {
+          articlePosition: null,
+        });
+      }
     }
+
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
     const article = await Article.create({
       title,
       slug,
-      image: imagePath,
       excerpt,
       description,
       createdBy,
       categoryId,
       showDate,
-      language,
-      originalSlug,
+      image: imagePath,
+      articleTags,
+      articlePosition: articlePosition ?? null,
     });
+
+    if (articlePosition !== null) {
+      const articleWithSamePos = await Article.findOne({
+        articlePosition: null,
+        _id: { $ne: article._id },
+      });
+
+      if (articleWithSamePos) {
+        await Article.findByIdAndUpdate(articleWithSamePos._id, {
+          articlePosition: articlePosition + 1,
+        });
+      }
+    }
+
     const addedArticle = await Article.findById(article._id)
       .populate("categoryId", "title")
       .populate("createdBy", "username");
-    res.status(201).json({
+
+    return res.status(201).json({
       success: true,
       message: "Article created successfully",
       data: addedArticle,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
+
 exports.getArticles = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -67,10 +106,10 @@ exports.getArticles = async (req, res) => {
       message: "Articles fetched successfully.",
       data: articles,
       pagination: {
-        total,                    
-        page,                    
-        pages: Math.ceil(total / limit), 
-        limit,                    
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+        limit,
       },
     });
   } catch (error) {
@@ -80,7 +119,6 @@ exports.getArticles = async (req, res) => {
     });
   }
 };
-
 
 exports.getSingleArticle = async (req, res) => {
   try {
@@ -103,7 +141,7 @@ exports.getSingleArticle = async (req, res) => {
 
 exports.updateArticle = async (req, res) => {
   try {
-    const {
+    let {
       title,
       slug,
       excerpt,
@@ -111,20 +149,54 @@ exports.updateArticle = async (req, res) => {
       createdBy,
       categoryId,
       showDate,
-      language,
-      originalSlug,
+      articleTags,
+      articlePosition,
     } = req.body;
+
+    if (articleTags) {
+      try {
+        articleTags = JSON.parse(articleTags);
+      } catch {
+        articleTags = articleTags.split(",").map((t) => t.trim());
+      }
+    }
+
+    articlePosition = articlePosition ? Number(articlePosition) : null;
+
     const existingArticle = await Article.findOne({
-      slug: slug,
+      slug,
       _id: { $ne: req.params.id },
     });
 
-    if (existingArticle) {
+    if (existingArticle)
       return res.status(400).json({
         success: false,
-        message: "Slug already exists. Please choose a different one.",
+        message: "Slug already exists.",
       });
+
+    const currentArticle = await Article.findById(req.params.id);
+
+    if (!currentArticle)
+      return res
+        .status(404)
+        .json({ success: false, message: "Article not found" });
+
+    if (
+      articlePosition !== null &&
+      articlePosition !== currentArticle.articlePosition
+    ) {
+      const articleWithSamePos = await Article.findOne({
+        articlePosition,
+        _id: { $ne: req.params.id },
+      });
+
+      if (articleWithSamePos) {
+        await Article.findByIdAndUpdate(articleWithSamePos._id, {
+          articlePosition: currentArticle.articlePosition || null,
+        });
+      }
     }
+
     const updateData = {
       title,
       slug,
@@ -133,31 +205,26 @@ exports.updateArticle = async (req, res) => {
       createdBy,
       categoryId,
       showDate,
-      language,
-      originalSlug,
+      articleTags,
+      articlePosition,
     };
 
     if (req.file) updateData.image = `/uploads/${req.file.filename}`;
 
-    const article = await Article.findByIdAndUpdate(req.params.id, updateData, {
+    const updated = await Article.findByIdAndUpdate(req.params.id, updateData, {
       new: true,
       runValidators: true,
-    });
+    })
+      .populate("categoryId", "title")
+      .populate("createdBy", "username");
 
-    if (!article)
-      return res
-        .status(404)
-        .json({ success: false, message: "Article not found" });
-    const updatedarticle = await Article.findById(req.params.id)
-      .populate("categoryId", " title")
-      .populate("createdBy", " username");
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "Article updated successfully",
-      data: updatedarticle,
+      data: updated,
     });
   } catch (error) {
-    res.status(400).json({ success: false, message: error.message });
+    return res.status(400).json({ success: false, message: error.message });
   }
 };
 
@@ -168,13 +235,11 @@ exports.deleteArticle = async (req, res) => {
       return res
         .status(404)
         .json({ success: false, message: "Article not found" });
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Article deleted successfully",
-        data: article,
-      });
+    res.status(200).json({
+      success: true,
+      message: "Article deleted successfully",
+      data: article,
+    });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
