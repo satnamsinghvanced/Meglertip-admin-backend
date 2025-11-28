@@ -66,11 +66,11 @@ exports.getSingleArticleCategory = async (req, res) => {
 
 exports.updateArticleCategory = async (req, res) => {
   try {
-    const { title, slug, description, language, originalSlug } = req.body;
+    const { title, slug, description,  categoryPosition} = req.body;
 
     const updatedCategory = await ArticleCategory.findByIdAndUpdate(
       req.params.id,
-      { title, slug, description, language, originalSlug },
+      { title, slug, description, categoryPosition},
       { new: true, runValidators: true }
     );
 

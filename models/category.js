@@ -9,7 +9,7 @@ const categorySchema = new mongoose.Schema(
     description:{
         type:String,  
     }, 
-    categotyPosition: {type:Number , required: true}
+    categoryPosition: {type:Number }
   },
   { timestamps: true }
 );
