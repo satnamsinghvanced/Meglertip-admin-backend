@@ -12,8 +12,15 @@ exports.createPartner = async (req, res) => {
       isPremium,
       isActive,
       wishes,
-      postalCodes
+      postalCodes,
     } = req.body;
+    const existingPartner = await Partners.findOne({ email });
+    if (existingPartner) {
+      return res.status(400).json({
+        success: false,
+        message: "Partner with this email already exists",
+      });
+    }
 
     const newPartner = new Partners({
       name,
@@ -27,16 +34,16 @@ exports.createPartner = async (req, res) => {
 
       postalCodes: {
         exact: postalCodes?.exact?.map((c) => ({ code: c })) || [],
-        ranges: postalCodes?.ranges?.map((r) => ({
-          from: r.from,
-          to: r.to,
-        })) || [],
+        ranges:
+          postalCodes?.ranges?.map((r) => ({
+            from: r.from,
+            to: r.to,
+          })) || [],
       },
     });
 
     await newPartner.save();
-    res.status(201).json({ success: true, data: newPartner });
-
+    res.status(201).json({ success: true, data: newPartner , message: "Partner Added Successfully" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -138,9 +145,20 @@ exports.updatePartner = async (req, res) => {
       isPremium,
       isActive,
       wishes,
-      postalCodes
+      postalCodes,
     } = req.body;
-
+  if (email) {
+      const existingPartner = await Partners.findOne({
+        email,
+        _id: { $ne: id }, 
+      });
+      if (existingPartner) {
+        return res.status(400).json({
+          success: false,
+          message: "Email is already used by another partner",
+        });
+      }
+    }
     const updateData = {
       name,
       email,
@@ -152,10 +170,11 @@ exports.updatePartner = async (req, res) => {
       wishes,
       postalCodes: {
         exact: postalCodes?.exact?.map((c) => ({ code: c })) || [],
-        ranges: postalCodes?.ranges?.map((r) => ({
-          from: r.from,
-          to: r.to,
-        })) || [],
+        ranges:
+          postalCodes?.ranges?.map((r) => ({
+            from: r.from,
+            to: r.to,
+          })) || [],
       },
     };
 
@@ -165,17 +184,17 @@ exports.updatePartner = async (req, res) => {
     });
 
     if (!updated) {
-      return res.status(404).json({ success: false, message: "Partner not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "Partner not found" });
     }
 
-    res.json({ success: true, data: updated });
-
+    res.json({ success: true, data: updated  , message: "Partner Updated Successfully"});
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Error updating partner" });
   }
 };
-
 
 exports.deletePartner = async (req, res) => {
   try {
