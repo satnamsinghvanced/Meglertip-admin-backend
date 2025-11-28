@@ -10,14 +10,14 @@ const partnersSchema = new mongoose.Schema(
     postalCodes: {
       exact: [
         {
-          code: { type: String, required: true }, 
+          code: { type: String }, 
         },
       ],
 
       ranges: [
         {
-          from: { type: String, required: true }, 
-          to: { type: String, required: true }, 
+          from: { type: String,  }, 
+          to: { type: String,  }, 
         },
       ],
     },
@@ -34,8 +34,8 @@ const partnersSchema = new mongoose.Schema(
 
     wishes: [
       {
-        question: { type: String, required: true },
-        expectedAnswer: { type: String, required: true },
+        question: { type: String  },
+        expectedAnswer: { type: String },
       },
     ],
   },
