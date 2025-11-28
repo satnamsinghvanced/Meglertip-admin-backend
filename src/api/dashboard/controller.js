@@ -3,23 +3,20 @@ const Partner = require("../../../models/partners");
 
 exports.getDashboardStats = async (req, res) => {
   try {
-    // Get date range from query
     const { start, end } = req.query;
 
     let startDate, endDate;
 
-    // If no range is provided → fallback to current month
     if (!start || !end) {
       const now = new Date();
       startDate = new Date(now.getFullYear(), now.getMonth(), 1);
-      endDate = new Date(); // today
+      endDate = new Date();
     } else {
       startDate = new Date(start);
       endDate = new Date(end);
       endDate.setHours(23, 59, 59, 999);
     }
 
-    // For comparing growth (last month)
     const lastMonthStart = new Date(
       startDate.getFullYear(),
       startDate.getMonth() - 1,
@@ -30,10 +27,6 @@ exports.getDashboardStats = async (req, res) => {
       startDate.getMonth(),
       0
     );
-
-    // -----------------------------
-    // 🔥 TOP PARTNERS
-    // -----------------------------
     const topPartners = await User.aggregate([
       { $unwind: "$partnerIds" },
 
@@ -73,9 +66,6 @@ exports.getDashboardStats = async (req, res) => {
       },
     ]);
 
-    // -----------------------------
-    // 🔥 LEADS - CURRENT RANGE
-    // -----------------------------
     const leadsCurrentRange = await User.aggregate([
       { $unwind: "$partnerIds" },
 
@@ -93,9 +83,6 @@ exports.getDashboardStats = async (req, res) => {
       },
     ]);
 
-    // -----------------------------
-    // 🔥 LEADS - LAST MONTH
-    // -----------------------------
     const leadsLastMonth = await User.aggregate([
       { $unwind: "$partnerIds" },
 
@@ -113,15 +100,11 @@ exports.getDashboardStats = async (req, res) => {
       },
     ]);
 
-    // Create map for easy lookup
     const lastMonthMap = {};
     leadsLastMonth.forEach((l) => {
       lastMonthMap[l._id] = l.leads;
     });
 
-    // -----------------------------
-    // 🔥 GROWTH DATA
-    // -----------------------------
     const growthData = await Promise.all(
       leadsCurrentRange.map(async (curr) => {
         const partner = await Partner.findById(curr._id).select("name");
@@ -141,9 +124,6 @@ exports.getDashboardStats = async (req, res) => {
       })
     );
 
-    // -----------------------------
-    // 📈 TRENDLINE DATA
-    // -----------------------------
     const trendlineData = await User.aggregate([
       {
         $match: {
@@ -171,9 +151,6 @@ exports.getDashboardStats = async (req, res) => {
       },
     ]);
 
-    // -----------------------------
-    // 🔥 TOTAL STATS
-    // -----------------------------
     const totals = {
       totalLeads: await User.countDocuments({
         createdAt: { $gte: startDate, $lte: endDate },

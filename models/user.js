@@ -14,12 +14,10 @@ const userSchema = new Schema(
       default: "Pending",
       required: true,
     },
-
     profit: {
       type: Number,
       default: 0,
     },
-
     partnerIds: [
       {
         type: Schema.Types.ObjectId,

@@ -3,40 +3,54 @@ const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 
-// Change to your API URL
-const BASE_URL = "https://your-website.com";
-
+const BASE_URL = "http://localhost:9090";
+const FrontenURl = "https://meglertip.vercel.app";
 async function generateSitemap() {
   try {
-    // 1. Fetch dynamic URLs
-    const { data } = await axios.get(`${BASE_URL}/api/companies`);
+    const companyRes = await axios.get(`${BASE_URL}/api/companies`);
+    const articleRes = await axios.get(`${BASE_URL}/api/article`);
 
-    const companyUrls = data.map((c) => `${BASE_URL}/company/${c.slug}`);
+    const companies = companyRes?.data?.data || [];
+    const articles = articleRes?.data?.data || [];
 
-    // 2. Create XML structure
+
+    const companyUrls = companies.map((c) => `${FrontenURl}/eiendomsmegler/${c.slug}`);
+
+    const articleUrls = articles.map((a) => 
+      `${FrontenURl}/articles/${a.categoryId?.slug}/${a.slug}`
+    );
+
     let sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
     sitemapXml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
 
-    // Default pages
     const staticUrls = [
       "",
       "/about",
-      "/contact",
-      "/blog",
-      "/companies",
+      "/eiendomsmegler",
+      "/partner",
+      "/faq",
+      "/form",
     ];
 
     staticUrls.forEach((url) => {
       sitemapXml += `
         <url>
-          <loc>${BASE_URL}${url}</loc>
+          <loc>${FrontenURl}${url}</loc>
           <changefreq>weekly</changefreq>
           <priority>0.8</priority>
         </url>`;
     });
 
-    // Dynamic company pages
     companyUrls.forEach((url) => {
+      sitemapXml += `
+        <url>
+          <loc>${url}</loc>
+          <changefreq>daily</changefreq>
+          <priority>0.9</priority>
+        </url>`;
+    });
+
+    articleUrls.forEach((url) => {
       sitemapXml += `
         <url>
           <loc>${url}</loc>
@@ -47,7 +61,6 @@ async function generateSitemap() {
 
     sitemapXml += `\n</urlset>`;
 
-    // 3. Save file in public folder
     const filePath = path.join(__dirname, "../public/sitemap.xml");
 
     fs.writeFileSync(filePath, sitemapXml);
@@ -58,13 +71,9 @@ async function generateSitemap() {
   }
 }
 
-// -----------------------------
-//   CRON JOB (Runs daily 01:00 AM)
-// -----------------------------
 cron.schedule("0 1 * * *", () => {
   console.log("⏳ Running daily sitemap cron...");
   generateSitemap();
 });
 
-// Run once at server start (optional)
 generateSitemap();

@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
  const routes = require("./src/api/routes") 
-
+const cron = require("./service/cronJob")
 const app = express();
 const PORT = process.env.PORT || 5000;
 

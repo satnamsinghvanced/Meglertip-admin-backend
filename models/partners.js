@@ -24,13 +24,19 @@ const partnersSchema = new mongoose.Schema(
     isPremium: { type: Boolean, default: false },
     isActive: { type: Boolean, default: true },
     leads: {
-      lastMonth: { type: Number, default: 0 },
-      currentMonth: { type: Number, default: 0 },
       total: { type: Number, default: 0 },
     },
-    leadType:{
-      type: String
-    },
+    leadTypes: [
+      {
+        typeId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "LeadType",
+          required: true,
+        },
+        name: { type: String }, 
+        price: { type: Number, required: true }, 
+      },
+    ],
 
     wishes: [
       {

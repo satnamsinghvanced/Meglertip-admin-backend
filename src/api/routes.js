@@ -26,7 +26,8 @@ const sitemapRoutes = require("./sitemap/route");
 const contactUsRoutes = require("./contactUs/route");
 const smtpRoutes = require("./SMTP/route");
 const dashboardRoutes = require("./dashboard/route");
-const leadLogsRoutes = require("./leadLogs/route")
+const leadLogsRoutes = require("./leadLogs/route");
+const LeadTypesRoutes = require("./lead-type/route")
 
 
 const router = express.Router();
@@ -56,5 +57,6 @@ router.use("/sitemap", sitemapRoutes);
 router.use("/contact", contactUsRoutes);
 router.use("/smtp" , smtpRoutes);
 router.use("/dashboard" , dashboardRoutes);
-router.use("/lead-logs",leadLogsRoutes)
+router.use("/lead-logs", leadLogsRoutes);
+router.use("/lead-type", LeadTypesRoutes)
 module.exports = router;

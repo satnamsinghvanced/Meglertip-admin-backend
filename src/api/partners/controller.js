@@ -13,6 +13,8 @@ exports.createPartner = async (req, res) => {
       isActive,
       wishes,
       postalCodes,
+      leadTypes,
+      leads
     } = req.body;
     const existingPartner = await Partners.findOne({ email });
     if (existingPartner) {
@@ -31,6 +33,12 @@ exports.createPartner = async (req, res) => {
       isPremium,
       isActive,
       wishes,
+      leads,
+      leadTypes: leadTypes?.map((lt) => ({
+        typeId: lt.typeId,
+        name:lt.name,
+        price: lt.price,
+      })) || [],
 
       postalCodes: {
         exact: postalCodes?.exact?.map((c) => ({ code: c })) || [],
@@ -146,6 +154,8 @@ exports.updatePartner = async (req, res) => {
       isActive,
       wishes,
       postalCodes,
+      leadTypes,
+      leads
     } = req.body;
   if (email) {
       const existingPartner = await Partners.findOne({
@@ -176,6 +186,12 @@ exports.updatePartner = async (req, res) => {
             to: r.to,
           })) || [],
       },
+        leadTypes: leadTypes?.map((lt) => ({
+        typeId: lt.typeId,
+        name: lt.name,
+        price: lt.price,
+      })) || [],
+      leads
     };
 
     const updated = await Partners.findByIdAndUpdate(id, updateData, {
