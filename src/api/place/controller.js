@@ -12,7 +12,7 @@ exports.create = async (req, res) => {
       isRecommended,
       rank,
     } = req.body;
-    const imageFile = req.file;
+    // const imageFile = req.file;
 
     if (
       !name ||
@@ -20,8 +20,9 @@ exports.create = async (req, res) => {
       !slug ||
       !excerpt ||
       !title ||
-      !description ||
-      !imageFile
+      !description 
+      // ||
+      // !imageFile
     ) {
       return res.status(400).json({
         success: false,
@@ -51,7 +52,7 @@ exports.create = async (req, res) => {
       excerpt: excerpt.trim(),
       title: title.trim(),
       description: description.trim(),
-      image: `uploads/${imageFile.filename}`,
+      // image: `uploads/${imageFile.filename}`,
       isRecommended: isRecommended === "true" || isRecommended === true,
       rank: rank ? parseInt(rank) : 0,
     });
@@ -138,7 +139,7 @@ exports.update = async (req, res) => {
       isRecommended,
       rank,
     } = req.body;
-    const imageFile = req.file;
+    // const imageFile = req.file;
 
     const updatedFields = {
       ...(name && { name }),
@@ -153,9 +154,9 @@ exports.update = async (req, res) => {
       ...(rank !== undefined && { rank: parseInt(rank) }),
     };
 
-    if (imageFile) {
-      updatedFields.image = `uploads/${imageFile.filename}`;
-    }
+    // if (imageFile) {
+    //   updatedFields.image = `uploads/${imageFile.filename}`;
+    // }
 
     const updatedCity = await Place.findByIdAndUpdate(id, updatedFields, {
       new: true,
