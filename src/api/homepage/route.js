@@ -32,6 +32,10 @@ router.get("/faq", controller.getFaqSection);
 router.put("/faq", controller.updateFaqSection);
 
 
+router.get("/seo", controller.getSeoSection);
+router.put("/seo", controller.updateSeoSection);
+
+
 // Pros
 router.get("/pros", controller.getProsSection);
 router.put("/pros", controller.updateProsSection);
