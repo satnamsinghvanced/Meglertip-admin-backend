@@ -22,8 +22,10 @@ const homePageSchema = new mongoose.Schema(
     ourArticlesHeading: {
       heading: { type: String },
     },
-     articlesHeading: {
+    articlesHeading: {
       heading: { type: String },
+      buttonText: { type: String, trim: true },
+      ctaLink: { type: String, trim: true },
     },
     whyChooseMeglertipHeading: {
       heading: { type: String },
@@ -39,6 +41,8 @@ const homePageSchema = new mongoose.Schema(
     citySectionHeading: {
       title: { type: String },
       description: { type: String },
+      buttonText: { type: String, trim: true },
+      ctaLink: { type: String, trim: true },
     },
     prosSection:[
       {
@@ -55,6 +59,9 @@ const homePageSchema = new mongoose.Schema(
         }
       }
     ],
+    faq:{
+      title: {type:String}
+    },
     //   seo: {
     //   type: seoDataSchema,
     //   default: () => ({}),

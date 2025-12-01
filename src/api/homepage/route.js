@@ -28,6 +28,10 @@ router.put("/why-choose", controller.updateWhyChoose);
 router.get("/city", controller.getCitySection);
 router.put("/city", controller.updateCitySection);
 
+router.get("/faq", controller.getFaqSection);
+router.put("/faq", controller.updateFaqSection);
+
+
 // Pros
 router.get("/pros", controller.getProsSection);
 router.put("/pros", controller.updateProsSection);

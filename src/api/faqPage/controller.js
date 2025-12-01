@@ -1,4 +1,4 @@
-const faqPage = require("../../../models/faqPage")
+const faqPage = require("../../../models/faqPage");
 
 exports.createFaqPage = async (req, res) => {
   try {
@@ -22,7 +22,7 @@ exports.createFaqPage = async (req, res) => {
     const newFaqPage = await faqPage.create({
       title,
       description,
-      ...restOfData, 
+      ...restOfData,
     });
 
     return res.status(201).json({
@@ -33,10 +33,10 @@ exports.createFaqPage = async (req, res) => {
   } catch (error) {
     console.error("Error creating FAQ Page:", error);
 
-    if (error.name === 'ValidationError' || error.name === 'CastError') {
-      return res.status(400).json({ 
-        success: false, 
-        message: error.message 
+    if (error.name === "ValidationError" || error.name === "CastError") {
+      return res.status(400).json({
+        success: false,
+        message: error.message,
       });
     }
 
@@ -49,15 +49,24 @@ exports.createFaqPage = async (req, res) => {
 
 exports.getFaqPage = async (req, res) => {
   try {
-    const page = await faqPage.findOne();
+    let page = await faqPage.findOne();
 
+    // If no FAQ page exists → create one with default values
     if (!page) {
-      return res.status(404).json({
-        success: false,
-        message: "No FAQ page found.",
+      page = await faqPage.create({
+        title: "FAQ",
+        description: "This is the default FAQ page description.",
+        questions: [], // add fields based on your schema
+      });
+
+      return res.status(201).json({
+        success: true,
+        message: "No FAQ page found, so a default one was created.",
+        data: page,
       });
     }
 
+    // If page exists → return it
     return res.status(200).json({
       success: true,
       message: "FAQ page fetched successfully.",
@@ -74,37 +83,33 @@ exports.getFaqPage = async (req, res) => {
 
 exports.updateFaqPage = async (req, res) => {
   try {
-    const { id } = req.params;
-    const updatedPage = await faqPage.findByIdAndUpdate(id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    const data = req.body;
 
-    if (!updatedPage) {
-      return res.status(404).json({
-        success: false,
-        message: "FAQ page not found.",
+    let faq = await faqPage.findOne();
+
+    if (!faq) {
+      faq = new faqPage({
+        ...data,
+      });
+    } else {
+      Object.assign(faq, {
+        ...data,
       });
     }
 
-    return res.status(200).json({
+    await faq.save();
+
+    res.json({
       success: true,
-      message: "FAQ page updated successfully.",
-      data: updatedPage,
+      message: "FAQ page updated successfully",
+      data: faq,
     });
   } catch (error) {
-    console.error("Error updating FAQ page:", error);
+    console.error("FAQ update error:", error);
 
-    if (error.name === "ValidationError" || error.name === "CastError") {
-      return res.status(400).json({
-        success: false,
-        message: error.message,
-      });
-    }
-
-    return res.status(500).json({
+    res.status(500).json({
       success: false,
-      message: "An unexpected error occurred while updating the FAQ page.",
+      message: error.message,
     });
   }
 };

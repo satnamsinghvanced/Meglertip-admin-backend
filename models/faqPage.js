@@ -3,8 +3,8 @@ const seoDataSchema = require("./seoSettings");
 
 const faqPage = new mongoose.Schema(
   {
-    title: { type: String },
-    description: { type: String },
+    title: { type: String , default :""},
+    description: { type: String , default :""},
     // seo: {
     //   type: seoDataSchema,
     //   default: () => ({}),

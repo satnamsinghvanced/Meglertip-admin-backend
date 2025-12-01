@@ -73,9 +73,9 @@ exports.getArticlesHeading = async (req, res) => {
 
 exports.updateArticlesHeading = async (req, res) => {
   try {
-    const { heading } = req.body;
+    const { heading, buttonText, ctaLink} = req.body;
     const home = await getOrCreateHomePage();
-    home.articlesHeading = { heading };
+    home.articlesHeading = { heading ,buttonText, ctaLink };
     await home.save();
     res.status(200).json({ success: true, message: "Articles heading updated" });
   } catch (err) {
@@ -107,9 +107,7 @@ exports.updateCategoryHeading = async (req, res) => {
   }
 };
 
-// -------------------------------
-// 4️⃣ Why Choose Meglertip Section
-// -------------------------------
+
 exports.getWhyChoose = async (req, res) => {
   try {
     const home = await getOrCreateHomePage();
@@ -152,15 +150,41 @@ exports.getCitySection = async (req, res) => {
 
 exports.updateCitySection = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, ctaLink, buttonText } = req.body;
     const home = await getOrCreateHomePage();
-    home.citySectionHeading = { title, description };
+    home.citySectionHeading = { title, description ,ctaLink, buttonText };
     await home.save();
     res.status(200).json({ success: true, message: "City section updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
+
+exports.getFaqSection = async (req, res) => {
+  try {
+    const home = await getOrCreateHomePage();
+    res.status(200).json({ success: true, data: home.faq });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
+exports.updateFaqSection = async (req, res) => {
+  try {
+    const { title } = req.body;
+    const home = await getOrCreateHomePage();
+    home.faq = { title};
+    await home.save();
+    res.status(200).json({ success: true, message: "Faq section updated" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+
 
 // -------------------------------
 // 6️⃣ Pros Section
