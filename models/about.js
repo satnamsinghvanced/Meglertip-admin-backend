@@ -37,33 +37,33 @@ const aboutSchema = new mongoose.Schema(
       notranslate: { type: Boolean, default: false },
     },
 
-    customHead: { type: String, default: "" },
+    // customHead: { type: String, default: "" },
 
-    slug: { type: String, trim: true, unique: true },
+    // slug: { type: String, trim: true, unique: true },
 
-    redirect: {
-      enabled: { type: Boolean, default: false },
-      from: { type: String, trim: true },
-      to: { type: String, trim: true },
-      type: { type: Number, enum: [301, 302], default: 301 },
-    },
+    // redirect: {
+    //   enabled: { type: Boolean, default: false },
+    //   from: { type: String, trim: true },
+    //   to: { type: String, trim: true },
+    //   type: { type: Number, enum: [301, 302], default: 301 },
+    // },
 
-    breadcrumbs: [
-      {
-        label: { type: String, trim: true },
-        url: { type: String, trim: true },
-      }
-    ],
+    // breadcrumbs: [
+    //   {
+    //     label: { type: String, trim: true },
+    //     url: { type: String, trim: true },
+    //   }
+    // ],
 
-    includeInSitemap: { type: Boolean, default: true },
-    priority: { type: Number, default: 0.7 },      
-    changefreq: { type: String, default: "weekly" }, 
+    // includeInSitemap: { type: Boolean, default: true },
+    // priority: { type: Number, default: 0.7 },      
+    // changefreq: { type: String, default: "weekly" }, 
 
-    isScheduled: { type: Boolean, default: false },
-    scheduledPublishDate: { type: Date },
+    // isScheduled: { type: Boolean, default: false },
+    // scheduledPublishDate: { type: Date },
 
-    isDeleted: { type: Boolean, default: false },
-    isHidden: { type: Boolean, default: false },
+    // isDeleted: { type: Boolean, default: false },
+    // isHidden: { type: Boolean, default: false },
   },
   { timestamps: true }
 );

@@ -1,16 +1,15 @@
 const mongoose = require("mongoose");
 const seoDataSchema = require("./seoSettings");
-const articleCategorySchema = new mongoose.Schema(
+
+const faqPage = new mongoose.Schema(
   {
-    title: { type: String, required: true },
-    slug: { type: String, unique: true, required: true },
-    categoryPosition: { type: Number, unique: true, required: true },
-    description: { type: String, required: true },
+    title: { type: String },
+    description: { type: String },
     // seo: {
     //   type: seoDataSchema,
     //   default: () => ({}),
     // },
-     metaTitle: { type: String, trim: true, default: "" },
+    metaTitle: { type: String, trim: true, default: "" },
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },
     metaImage: { type: String, trim: true, default: "" },
@@ -38,4 +37,4 @@ const articleCategorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("articleCategory", articleCategorySchema);
+module.exports = mongoose.model("faqPage", faqPage);

@@ -12,6 +12,7 @@ exports.createCompany = async (req, res) => {
       description,
       extractor,
       brokerSites,
+      ...restOfData
     } = req.body;
 
     const existingCompany = await Company.findOne({ email });
@@ -31,6 +32,7 @@ exports.createCompany = async (req, res) => {
       description,
       extractor,
       brokerSites,
+      ...restOfData
     });
 
     await newCompany.save();

@@ -2,7 +2,7 @@ const ArticleCategory = require("../../../models/articleCategory");
 
 exports.createArticleCategory = async (req, res) => {
   try {
-    const { title, slug, description, categoryPosition } = req.body;
+    const { title, slug, description, categoryPosition , ...restOfData} = req.body;
 
     const existing = await ArticleCategory.findOne({ slug });
     if (existing) {
@@ -15,7 +15,8 @@ exports.createArticleCategory = async (req, res) => {
       title,
       slug,
       description,
-      categoryPosition
+      categoryPosition,
+      ...restOfData
     });
 
     await newCategory.save();
@@ -66,11 +67,11 @@ exports.getSingleArticleCategory = async (req, res) => {
 
 exports.updateArticleCategory = async (req, res) => {
   try {
-    const { title, slug, description,  categoryPosition} = req.body;
+    const { title, slug, description,  categoryPosition, ...restOfData} = req.body;
 
     const updatedCategory = await ArticleCategory.findByIdAndUpdate(
       req.params.id,
-      { title, slug, description, categoryPosition},
+      { title, slug, description, categoryPosition, ...restOfData},
       { new: true, runValidators: true }
     );
 

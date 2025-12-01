@@ -1,11 +1,10 @@
 const mongoose = require("mongoose");
 const seoDataSchema = require("./seoSettings");
-const articleCategorySchema = new mongoose.Schema(
+
+const formPage = new mongoose.Schema(
   {
-    title: { type: String, required: true },
-    slug: { type: String, unique: true, required: true },
-    categoryPosition: { type: Number, unique: true, required: true },
-    description: { type: String, required: true },
+    title: { type: String },
+    description: { type: String },
     // seo: {
     //   type: seoDataSchema,
     //   default: () => ({}),
@@ -38,4 +37,4 @@ const articleCategorySchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("articleCategory", articleCategorySchema);
+module.exports = mongoose.model("formPage", formPage);

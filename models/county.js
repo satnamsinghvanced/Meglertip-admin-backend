@@ -10,6 +10,7 @@ const countySchema = new mongoose.Schema(
     slug: {
       type: String,
     },
+    
   },
   { timestamps: true }
 );

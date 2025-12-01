@@ -2,7 +2,7 @@ const Agents = require("../../../models/realEstateAgent");
 
 exports.createAgentPage = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description , ...restOfData } = req.body;
     if (!title || !description) {
       return res.status(400).json({ message: "All fields are requird!!" });
     }
@@ -13,6 +13,7 @@ exports.createAgentPage = async (req, res) => {
     const agent = await Agents.create({
       title,
       description,
+      ...restOfData
     });
     res
       .status(201)

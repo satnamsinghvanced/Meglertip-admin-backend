@@ -2,7 +2,7 @@ const PrivacyPolicy = require("../../../models/privacyPolicy");
 
 exports.createPrivacyPolicy = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description , ...restOfData } = req.body;
 
     if (!title || !description) {
       return res
@@ -10,7 +10,7 @@ exports.createPrivacyPolicy = async (req, res) => {
         .json({ success: false, message: "All fields required." });
     }
 
-    const policy = await PrivacyPolicy.create({ title, description });
+    const policy = await PrivacyPolicy.create({ title, description , ...restOfData});
 
     res.status(201).json({
       success: true,
@@ -59,7 +59,7 @@ exports.updatePrivacyPolicy = async (req, res) => {
 
     const updated = await PrivacyPolicy.findByIdAndUpdate(
       req.params.id,
-      { title, description },
+      { title, description, ...restOfData },
       { new: true }
     );
 

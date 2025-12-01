@@ -26,7 +26,7 @@ exports.create = async (req, res) => {
     ) {
       return res.status(400).json({
         success: false,
-        message: "All fields and an image file are required.",
+        message: "All fields are required.",
       });
     }
 

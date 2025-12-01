@@ -12,6 +12,7 @@ exports.createArticle = async (req, res) => {
       showDate,
       articleTags,
       articlePosition,
+      ...restOfData
     } = req.body;
 
     if (articleTags) {
@@ -56,6 +57,7 @@ exports.createArticle = async (req, res) => {
       image: imagePath,
       articleTags,
       articlePosition: articlePosition ?? null,
+      ...restOfData,
     });
 
     if (articlePosition !== null) {
@@ -151,6 +153,7 @@ exports.updateArticle = async (req, res) => {
       showDate,
       articleTags,
       articlePosition,
+      ...restOfData
     } = req.body;
 
     if (articleTags) {
@@ -207,6 +210,7 @@ exports.updateArticle = async (req, res) => {
       showDate,
       articleTags,
       articlePosition,
+      ...restOfData,
     };
 
     if (req.file) updateData.image = `/uploads/${req.file.filename}`;
