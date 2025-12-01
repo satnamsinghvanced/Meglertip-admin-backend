@@ -29,6 +29,8 @@ const dashboardRoutes = require("./dashboard/route");
 const leadLogsRoutes = require("./leadLogs/route");
 const LeadTypesRoutes = require("./lead-type/route")
 const FaqPageRoutes = require("./faqPage/route")
+const articlePageRoutes = require("./articlePage/route")
+const formPageRoutes = require("./formPage/route")
 
 
 const router = express.Router();
@@ -60,5 +62,7 @@ router.use("/smtp" , smtpRoutes);
 router.use("/dashboard" , dashboardRoutes);
 router.use("/lead-logs", leadLogsRoutes);
 router.use("/lead-type", LeadTypesRoutes);
-router.use("/faq-page", FaqPageRoutes)
+router.use("/faq-page", FaqPageRoutes);
+router.use("/article-page", articlePageRoutes);
+router.use("/form-page", formPageRoutes)
 module.exports = router;

@@ -22,7 +22,7 @@ const placeSchema = new mongoose.Schema(
     //   type: seoDataSchema,
     //   default: () => ({}),
     // },
-     metaTitle: { type: String, trim: true, default: "" },
+    metaTitle: { type: String, trim: true, default: "" },
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },
     metaImage: { type: String, trim: true, default: "" },

@@ -11,6 +11,7 @@ exports.create = async (req, res) => {
       description,
       isRecommended,
       rank,
+      ...restOfData
     } = req.body;
     // const imageFile = req.file;
 
@@ -55,6 +56,7 @@ exports.create = async (req, res) => {
       // image: `uploads/${imageFile.filename}`,
       isRecommended: isRecommended === "true" || isRecommended === true,
       rank: rank ? parseInt(rank) : 0,
+      ...restOfData
     });
 
     res.status(201).json({
@@ -138,6 +140,7 @@ exports.update = async (req, res) => {
       description,
       isRecommended,
       rank,
+      ...restOfData
     } = req.body;
     // const imageFile = req.file;
 
@@ -150,6 +153,7 @@ exports.update = async (req, res) => {
       ...(description && { description }),
       ...(isRecommended !== undefined && {
         isRecommended: isRecommended === "true" || isRecommended === true,
+        ...restOfData
       }),
       ...(rank !== undefined && { rank: parseInt(rank) }),
     };

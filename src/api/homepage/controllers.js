@@ -228,7 +228,6 @@ exports.getSeoSection = async (req, res) => {
 exports.updateSeoSection = async (req, res) => {
   try {
     const { seoSection } = req.body; 
-    console.log(seoSection)
     const home = await getOrCreateHomePage();
     home.seo = seoSection;
     await home.save();

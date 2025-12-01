@@ -1,14 +1,10 @@
 const mongoose = require("mongoose");
-const seoDataSchema = require("./seoSettings");
+
 
 const faqPage = new mongoose.Schema(
   {
     title: { type: String , default :""},
     description: { type: String , default :""},
-    // seo: {
-    //   type: seoDataSchema,
-    //   default: () => ({}),
-    // },
     metaTitle: { type: String, trim: true, default: "" },
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },

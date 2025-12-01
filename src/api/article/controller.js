@@ -25,6 +25,14 @@ exports.createArticle = async (req, res) => {
       articleTags = [];
     }
 
+    if (restOfData.robots) {
+      try {
+        restOfData.robots = JSON.parse(restOfData.robots);
+      } catch {
+        restOfData.robots = {};
+      }
+    }
+
     articlePosition = articlePosition ? Number(articlePosition) : null;
 
     const existingArticle = await Article.findOne({ slug });
@@ -161,6 +169,13 @@ exports.updateArticle = async (req, res) => {
         articleTags = JSON.parse(articleTags);
       } catch {
         articleTags = articleTags.split(",").map((t) => t.trim());
+      }
+    }
+    if (restOfData.robots) {
+      try {
+        restOfData.robots = JSON.parse(restOfData.robots);
+      } catch {
+        restOfData.robots = {};
       }
     }
 

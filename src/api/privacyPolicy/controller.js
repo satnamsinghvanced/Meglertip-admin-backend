@@ -55,7 +55,7 @@ exports.getPrivacyPolicyById = async (req, res) => {
 
 exports.updatePrivacyPolicy = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, ...restOfData } = req.body;
 
     const updated = await PrivacyPolicy.findByIdAndUpdate(
       req.params.id,

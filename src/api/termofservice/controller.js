@@ -2,7 +2,7 @@ const TermOfService = require("../../../models/termofservice");
 
 exports.createTermOfService = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description , ...restOfData} = req.body;
 
     if (!title || !description) {
       return res
@@ -10,7 +10,7 @@ exports.createTermOfService = async (req, res) => {
         .json({ success: false, message: "All fields required." });
     }
 
-    const policy = await TermOfService.create({ title, description });
+    const policy = await TermOfService.create({ title, description ,...restOfData});
 
     res.status(201).json({
       success: true,
@@ -55,11 +55,11 @@ exports.getTermOfServiceId = async (req, res) => {
 
 exports.updateTermOfService = async (req, res) => {
   try {
-    const { title, description } = req.body;
+    const { title, description, ...restOfData } = req.body;
 
     const updated = await TermOfService.findByIdAndUpdate(
       req.params.id,
-      { title, description },
+      { title, description, ...restOfData },
       { new: true }
     );
 

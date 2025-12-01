@@ -1,14 +1,11 @@
 const mongoose = require("mongoose");
-const seoDataSchema = require("./seoSettings");
 
-const formPage = new mongoose.Schema(
+
+const articlePage = new mongoose.Schema(
   {
-    title: { type: String },
-    description: { type: String },
-    // seo: {
-    //   type: seoDataSchema,
-    //   default: () => ({}),
-    // },
+    title: { type: String , default :""},
+    description: { type: String , default :""},
+    categoriesHeading:{type: String, default:""},
     metaTitle: { type: String, trim: true, default: "" },
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },
@@ -37,4 +34,4 @@ const formPage = new mongoose.Schema(
   },
   { timestamps: true }
 );
-module.exports = mongoose.model("formPage", formPage);
+module.exports = mongoose.model("articlePage", articlePage);

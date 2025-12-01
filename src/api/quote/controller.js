@@ -2,7 +2,7 @@ const Quote = require("../../../models/quote");
 
 exports.createQuote =async(req,res)=>{
     try{
-        const{heading,description,points,button}=req.body;
+        const{heading,description,points, buttonText , ctaLink}=req.body;
         if(!heading || !description){
             return res.status(400).json({message:"All fields are requird!!"})
         }
@@ -14,7 +14,8 @@ exports.createQuote =async(req,res)=>{
             heading,
             description,
             points,
-            button
+            buttonText,
+            ctaLink
         })
         res.status(201).json({success:true,message:"Quote created successfully !",data:quote})
     }
