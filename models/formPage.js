@@ -13,6 +13,8 @@ const formPage = new mongoose.Schema(
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },
     metaImage: { type: String, trim: true, default: "" },
+    categoriesHeading:{type: String, default:""},
+
     canonicalUrl: { type: String, trim: true, default: "" },
     jsonLd: { type: String, default: "" },
 
