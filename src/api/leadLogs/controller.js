@@ -30,7 +30,7 @@ exports.getAllLeads = async (req, res) => {
     const total = await Lead.countDocuments(filter);
 
     const leads = await Lead.find(filter)
-      .populate("partnerIds", "name email phone")
+      .populate("partnerIds", "name email phone leadTypes")
       // .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
