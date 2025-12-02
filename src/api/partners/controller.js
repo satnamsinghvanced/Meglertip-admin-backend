@@ -260,3 +260,54 @@ exports.questionForPartner = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+exports.getAnwserOptionsForQuestion = async (req, res) => {
+  try {
+    const { question } = req.query;
+
+    if (!question) {
+      return res.status(400).json({
+        success: false,
+        message: "Question is required",
+      });
+    }
+
+    const form = await Form.findOne();
+    if (!form) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Form not found" });
+    }
+
+    // Find the field by name (question)
+    let foundField = null;
+
+    form.steps.forEach((step) => {
+      step.fields.forEach((field) => {
+        if (field.name === question) {
+          foundField = field;
+        }
+      });
+    });
+
+    if (!foundField) {
+      return res.status(404).json({
+        success: false,
+        message: "Question not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      question: foundField.name,
+      type: foundField.type,
+      options: foundField.options || [],
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};

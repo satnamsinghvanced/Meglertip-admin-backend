@@ -4,7 +4,7 @@ const articleSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     articlePosition: { type: Number },
-    slug: { type: String, unique: true, required: true },
+    slug: { type: String, unique: true, required: true , trim:true },
     image: { type: String, required: true },
     excerpt: { type: String, required: true },
     description: { type: String, required: true },

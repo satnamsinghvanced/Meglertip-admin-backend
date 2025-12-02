@@ -5,7 +5,8 @@ const {
   getPartnerById,
   updatePartner,
   deletePartner,
-  questionForPartner
+  questionForPartner,
+  getAnwserOptionsForQuestion
 } = require("./controller");
 
 const router = express.Router();
@@ -15,6 +16,7 @@ router.get("/", getPartners);
 router.get("/details", getPartnerById);
 router.put("/update", updatePartner);
 router.delete("/delete", deletePartner);
-router.get("/questions", questionForPartner)
+router.get("/questions", questionForPartner);
+router.get("/anwser", getAnwserOptionsForQuestion)
 
 module.exports = router;

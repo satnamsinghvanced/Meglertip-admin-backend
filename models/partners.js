@@ -41,7 +41,7 @@ const partnersSchema = new mongoose.Schema(
     wishes: [
       {
         question: { type: String  },
-        expectedAnswer: { type: String },
+        expectedAnswer: { type: [String] },
       },
     ],
   },

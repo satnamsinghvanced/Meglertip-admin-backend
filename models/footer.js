@@ -59,6 +59,14 @@ const FooterSchema = new mongoose.Schema(
         href: { type: String, required: true },
       },
     ],
+    footerText:[
+      {
+        text: { type: String, required: true },
+      },
+    ],
+    address:{
+      text:{type:String , default: ""}
+    }
   },
   { timestamps: true }
 );
