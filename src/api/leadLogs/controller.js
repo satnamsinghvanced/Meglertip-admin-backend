@@ -11,13 +11,9 @@ exports.getAllLeads = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    let filter = {
-      // partnerIds: { $exists: true, $ne: [] },
-    };
+    let filter = {};
 
-    if (status) {
-      filter.status = status;
-    }
+    if (status) filter.status = status;
 
     if (search) {
       filter.$or = [
@@ -30,15 +26,45 @@ exports.getAllLeads = async (req, res) => {
     const total = await Lead.countDocuments(filter);
 
     const leads = await Lead.find(filter)
-      .populate("partnerIds", "name email phone leadTypes")
-      // .sort({ createdAt: -1 })
+      .populate("partnerIds", "name email phone wishes leadTypes")
       .skip(skip)
       .limit(limit);
 
-    const formatted = leads.map((lead) => ({
-      ...lead.toObject(),
-      partner: lead.partnerIds?.[0] || null,
-    }));
+    const formatted = leads.map((lead) => {
+      const leadObj = lead.toObject();
+      const partner = lead.partnerIds?.[0] || null;
+
+      let computedProfit = 0;
+
+      if (partner) {
+        const leadPreference = lead.dynamicFields?.preferranceType;
+
+        // Check partner wishes
+        const preferenceWish = partner.wishes?.find(
+          (w) => w.question === "preferranceType"
+        );
+
+        const isSupported =
+          preferenceWish &&
+          preferenceWish.expectedAnswer?.includes(leadPreference);
+
+        if (isSupported) {
+          // Pick highest priced leadType
+          if (partner.leadTypes?.length) {
+            const highestPrice = Math.max(
+              ...partner.leadTypes.map((lt) => lt.price || 0)
+            );
+            computedProfit = highestPrice;
+          }
+        }
+      }
+
+      return {
+        ...leadObj,
+        partner,
+        profit: computedProfit,
+      };
+    });
 
     res.json({
       success: true,
@@ -58,3 +84,5 @@ exports.getAllLeads = async (req, res) => {
     });
   }
 };
+
+
