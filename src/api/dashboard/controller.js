@@ -111,8 +111,7 @@ exports.getDashboardStats = async (req, res) => {
 
         const prev = lastMonthMap[curr._id] || 0;
 
-        const growth =
-          prev === 0 ? 100 : ((curr.leads - prev) / prev) * 100;
+        const growth = prev === 0 ? 100 : ((curr.leads - prev) / prev) * 100;
 
         return {
           partnerId: curr._id,
@@ -140,7 +139,7 @@ exports.getDashboardStats = async (req, res) => {
         },
       },
 
-      { $sort: { "_id": 1 } },
+      { $sort: { _id: 1 } },
 
       {
         $project: {
@@ -172,6 +171,36 @@ exports.getDashboardStats = async (req, res) => {
       success: false,
       message: "Failed to load dashboard stats",
       error,
+    });
+  }
+};
+
+exports.totalLeads = async (req, res) => {
+  try {
+    const leadCounts = await User.aggregate([
+      {
+        $group: {
+          _id: "$dynamicFields.preferranceType",
+          count: { $sum: 1 },
+        },
+      },
+    ]);
+   let formatted = {};
+    let total = 0;
+
+    leadCounts.forEach((item) => {
+      formatted[item._id] = item.count;
+      total += item.count;
+    });
+    return res.status(200).json({
+      success: true,
+       totalLeads: total, 
+      data: formatted,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      msg: error.message,
     });
   }
 };
