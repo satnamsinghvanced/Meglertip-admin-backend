@@ -2,7 +2,7 @@ const FormSelect = require("../../../models/formSelect");
 
 exports.CreateFormSelect = async (req, res) => {
   try {
-    const {formTitle, formDescription } = req.body;
+    const {formTitle, formDescription , price } = req.body;
 
     if ( !formTitle) {
       return res.status(400).json({
@@ -14,6 +14,7 @@ exports.CreateFormSelect = async (req, res) => {
     const newForm = await FormSelect.create({
       formTitle,
       formDescription,
+      price
     });
 
     res.status(201).json({
@@ -61,11 +62,11 @@ exports.GetSingleForm = async (req, res) => {
 
 exports.UpdateFormSelect = async (req, res) => {
   try {
-    const { formTitle, formDescription , formId} = req.body;
+    const { formTitle, formDescription , price} = req.body;
 
     const updated = await FormSelect.findByIdAndUpdate(
       req.params.id,
-      { formTitle, formDescription, formId },
+      { formTitle, formDescription, price},
       { new: true }
     );
 

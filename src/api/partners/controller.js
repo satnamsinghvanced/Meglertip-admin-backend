@@ -1,5 +1,7 @@
 const Partners = require("../../../models/partners");
 const Form = require("../../../models/forms");
+const formSelect = require("../../../models/formSelect");
+const partnerLimit = require("../../../models/partnerLimit");
 
 exports.createPartner = async (req, res) => {
   try {
@@ -13,8 +15,8 @@ exports.createPartner = async (req, res) => {
       isActive,
       wishes,
       postalCodes,
-      leadTypes,
-      leads
+      // leadTypes,
+      leads,
     } = req.body;
     const existingPartner = await Partners.findOne({ email });
     if (existingPartner) {
@@ -23,6 +25,7 @@ exports.createPartner = async (req, res) => {
         message: "Partner with this email already exists",
       });
     }
+    const leadsType = await formSelect.find();
 
     const newPartner = new Partners({
       name,
@@ -34,11 +37,10 @@ exports.createPartner = async (req, res) => {
       isActive,
       wishes,
       leads,
-      leadTypes: leadTypes?.map((lt) => ({
-        typeId: lt.typeId,
-        name:lt.name,
+      leadTypes: leadsType.map((lt) => ({
+        typeId: lt._id,
         price: lt.price,
-      })) || [],
+      })),
 
       postalCodes: {
         exact: postalCodes?.exact?.map((c) => ({ code: c })) || [],
@@ -51,7 +53,13 @@ exports.createPartner = async (req, res) => {
     });
 
     await newPartner.save();
-    res.status(201).json({ success: true, data: newPartner , message: "Partner Added Successfully" });
+    res
+      .status(201)
+      .json({
+        success: true,
+        data: newPartner,
+        message: "Partner Added Successfully",
+      });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Server Error" });
@@ -155,12 +163,12 @@ exports.updatePartner = async (req, res) => {
       wishes,
       postalCodes,
       leadTypes,
-      leads
+      leads,
     } = req.body;
-  if (email) {
+    if (email) {
       const existingPartner = await Partners.findOne({
         email,
-        _id: { $ne: id }, 
+        _id: { $ne: id },
       });
       if (existingPartner) {
         return res.status(400).json({
@@ -186,12 +194,12 @@ exports.updatePartner = async (req, res) => {
             to: r.to,
           })) || [],
       },
-        leadTypes: leadTypes?.map((lt) => ({
-        typeId: lt.typeId,
-        name: lt.name,
-        price: lt.price,
-      })) || [],
-      leads
+      leadTypes:
+        leadTypes?.map((lt) => ({
+          typeId: lt.typeId,
+          price: lt.price,
+        })) || [],
+      leads,
     };
 
     const updated = await Partners.findByIdAndUpdate(id, updateData, {
@@ -205,7 +213,11 @@ exports.updatePartner = async (req, res) => {
         .json({ success: false, message: "Partner not found" });
     }
 
-    res.json({ success: true, data: updated  , message: "Partner Updated Successfully"});
+    res.json({
+      success: true,
+      data: updated,
+      message: "Partner Updated Successfully",
+    });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: "Error updating partner" });
@@ -302,12 +314,35 @@ exports.getAnwserOptionsForQuestion = async (req, res) => {
       type: foundField.type,
       options: foundField.options || [],
     });
-
   } catch (error) {
     console.error(error);
     res.status(500).json({
       success: false,
       message: "Server error",
+    });
+  }
+};
+
+exports.setPartnerLimit = async (req, res) => {
+  try {
+    const { limit } = req.body;
+
+    const updatedLimit = await partnerLimit.findOneAndUpdate(
+      {},
+      { limit },
+      { new: true, upsert: true }
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: "Limit updated successfully",
+      data: updatedLimit,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Something went wrong while updating the limit",
+      error: error.message,
     });
   }
 };

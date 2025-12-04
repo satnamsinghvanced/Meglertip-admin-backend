@@ -30,10 +30,10 @@ const partnersSchema = new mongoose.Schema(
       {
         typeId: {
           type: mongoose.Schema.Types.ObjectId,
-          ref: "LeadType",
+          ref: "FormSelect",
           required: true,
         },
-        name: { type: String }, 
+      
         price: { type: Number, required: true }, 
       },
     ],
