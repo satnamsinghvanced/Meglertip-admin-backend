@@ -10,6 +10,7 @@ const formPage = new mongoose.Schema(
     //   default: () => ({}),
     // },
     multipleSelect :{type:Boolean,default:false},
+    privacyText:{type:String,default:""},
     metaTitle: { type: String, trim: true, default: "" },
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },

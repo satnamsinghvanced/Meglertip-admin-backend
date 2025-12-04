@@ -99,12 +99,23 @@ exports.getArticles = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
-
+    const search = req.query.search || "";
     const skip = (page - 1) * limit;
 
-    const total = await Article.countDocuments();
+    let filter = {};
+    if (search) {
 
-    const articles = await Article.find()
+      filter = {
+        $or: [
+          { title: { $regex: search, $options: "i" } },
+          { description: { $regex: search, $options: "i" } },
+        ],
+      };
+    }
+
+    const total = await Article.countDocuments(filter);
+
+    const articles = await Article.find(filter)
       .populate("createdBy")
       .populate("categoryId")
       .sort({ createdAt: -1 })
@@ -129,6 +140,7 @@ exports.getArticles = async (req, res) => {
     });
   }
 };
+
 
 exports.getSingleArticle = async (req, res) => {
   try {

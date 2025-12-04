@@ -51,10 +51,21 @@ exports.getCompanies = async (req, res) => {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
+    const search = req.query.search || "";
 
-    const totalCompanies = await Company.countDocuments();
+    // Build filter object
+    const filter = {};
+    if (search) {
+      // Search by company name (case-insensitive)
+      filter.companyName = { $regex: search, $options: "i" };
+    }
 
-    const companies = await Company.find().skip(skip).limit(limit).sort({ createdAt: -1 });
+    const totalCompanies = await Company.countDocuments(filter);
+
+    const companies = await Company.find(filter)
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
     res.status(200).json({
       success: true,
@@ -68,6 +79,7 @@ exports.getCompanies = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
+
 
 exports.getCompanyById = async (req, res) => {
   try {

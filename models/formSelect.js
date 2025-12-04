@@ -19,10 +19,14 @@ const FormSelectSchema = new mongoose.Schema(
     formNumber:{
         type:Number,
         unique:true,
-
-    }
+    },
+    price: {
+      type: Number,
+      required: true,
+      default: 0,       
+    },
   },
-  { timestamps: true }
+  { timestamps: true }  
 );
 FormSelectSchema.pre("save", async function (next) {
   if (!this.isNew) return next(); // Only on create

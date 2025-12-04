@@ -3,10 +3,10 @@ require("dotenv").config();
 const fs = require("fs");
 const path = require("path");
 
-if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-  console.error("Missing email credentials. Please check your .env file.");
-  process.exit(1);
-}
+// if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+//   console.error("Missing email credentials. Please check your .env file.");
+//   process.exit(1);
+// }
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

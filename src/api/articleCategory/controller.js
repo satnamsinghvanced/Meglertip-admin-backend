@@ -33,16 +33,40 @@ exports.createArticleCategory = async (req, res) => {
 
 exports.getArticleCategory = async (req, res) => {
   try {
-    const categories = await ArticleCategory.find().sort({ createdAt: -1 });
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+
+    const skip = (page - 1) * limit;
+
+    // Build search query
+    const query = search
+      ? { title: { $regex: search, $options: "i" } } // case-insensitive search
+      : {};
+
+    const total = await ArticleCategory.countDocuments(query);
+
+    const categories = await ArticleCategory.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
+
     res.status(200).json({
       success: true,
-      count: categories.length,
+      message: "Categories fetched successfully.",
       data: categories,
+      pagination: {
+        total,
+        page,
+        pages: Math.ceil(total / limit),
+        limit,
+      },
     });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
 
 exports.getSingleArticleCategory = async (req, res) => {
   try {
