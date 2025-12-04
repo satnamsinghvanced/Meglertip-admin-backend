@@ -1,0 +1,107 @@
+const FormSelect = require("../../../models/formSelect");
+
+exports.CreateFormSelect = async (req, res) => {
+  try {
+    const {formTitle, formDescription } = req.body;
+
+    if ( !formTitle) {
+      return res.status(400).json({
+        success: false,
+        message: " formTitle is required",
+      });
+    }
+
+    const newForm = await FormSelect.create({
+      formTitle,
+      formDescription,
+    });
+
+    res.status(201).json({
+      success: true,
+      message: "Form created successfully",
+      data: newForm,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.GetAllForms = async (req, res) => {
+  try {
+    const forms = await FormSelect.find().sort({ formNumber: 1});
+
+    res.status(200).json({
+      success: true,
+      data: forms,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.GetSingleForm = async (req, res) => {
+  try {
+    const form = await FormSelect.findById(req.params.id);
+
+    if (!form) {
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: form,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.UpdateFormSelect = async (req, res) => {
+  try {
+    const { formTitle, formDescription , formId} = req.body;
+
+    const updated = await FormSelect.findByIdAndUpdate(
+      req.params.id,
+      { formTitle, formDescription, formId },
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Form updated successfully",
+      data: updated,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+exports.DeleteForm = async (req, res) => {
+  try {
+    const deleted = await FormSelect.findByIdAndDelete(req.params.id);
+
+    if (!deleted) {
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Form deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};

@@ -31,6 +31,7 @@ const LeadTypesRoutes = require("./lead-type/route")
 const FaqPageRoutes = require("./faqPage/route")
 const articlePageRoutes = require("./articlePage/route")
 const formPageRoutes = require("./formPage/route")
+const formSelectRoutes = require("./FormSelect/route")
 
 
 const router = express.Router();
@@ -64,5 +65,6 @@ router.use("/lead-logs", leadLogsRoutes);
 router.use("/lead-type", LeadTypesRoutes);
 router.use("/faq-page", FaqPageRoutes);
 router.use("/article-page", articlePageRoutes);
-router.use("/form-page", formPageRoutes)
+router.use("/form-page", formPageRoutes);
+router.use("/form-select", formSelectRoutes);
 module.exports = router;
