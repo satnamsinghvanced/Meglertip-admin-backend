@@ -9,6 +9,7 @@ const formPage = new mongoose.Schema(
     //   type: seoDataSchema,
     //   default: () => ({}),
     // },
+    multipleSelect :{type:Boolean,default:false},
     metaTitle: { type: String, trim: true, default: "" },
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },
