@@ -106,3 +106,48 @@ exports.getStepsOfForm = async (req, res) => {
     return res.status(500).json({ success: false, msg: err.message });
   }
 };
+exports.updateStep = async (req, res) => {
+  try {
+    const { formId, stepId } = req.params;
+    const { stepTitle, stepDescription, fields } = req.body;
+
+    // Fetch the FormBuilder document
+    const form = await FormBuilder.findOne({formId:formId});
+    if (!form)
+      return res.status(404).json({ success: false, msg: "Form not found" });
+
+    // Locate the step
+    const stepIndex = form.steps.findIndex(
+      (s) => s._id.toString() === stepId
+    );
+
+    if (stepIndex === -1)
+      return res
+        .status(404)
+        .json({ success: false, msg: "Step not found" });
+
+    // Update only provided fields
+    if (stepTitle !== undefined)
+      form.steps[stepIndex].stepTitle = stepTitle;
+
+    if (stepDescription !== undefined)
+      form.steps[stepIndex].stepDescription = stepDescription;
+
+    if (fields !== undefined)
+      form.steps[stepIndex].fields = fields; // full replacement of fields array
+
+    // Save
+    await form.save();
+
+    return res.json({
+      success: true,
+      msg: "Step updated successfully",
+      steps: form.steps,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+};

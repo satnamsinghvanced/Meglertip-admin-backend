@@ -15,4 +15,5 @@ router.get("/details", controller.getForm)
 
 router.post("/form-steps/:formId", controller.addStepToForm);
 router.get("/form-steps/:formId", controller.getStepsOfForm);
+router.put("/form-steps/:formId/:stepId", controller.updateStep)
 module.exports = router;
