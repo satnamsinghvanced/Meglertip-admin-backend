@@ -4,7 +4,7 @@ const { getAllLeads,getLeadById,updateLeadStatus,updateLeadProfit } = require(".
 const router = express.Router();
 
 router.get("/all", getAllLeads);
-router.get("/details", getLeadById);
+router.get("/details/:id", getLeadById);
 router.patch("/status", updateLeadStatus);
 router.patch("/update-profit", updateLeadProfit);
 

@@ -141,8 +141,8 @@ exports.updateLeadProfit = async (req, res) => {
 
 exports.getLeadById = async (req, res) => {
   try {
-    const {id} = req.params.id;
-console.log(id)
+     const { id } = req.params;   
+ 
     if (!id) {
       return res.status(400).json({
         success: false,
