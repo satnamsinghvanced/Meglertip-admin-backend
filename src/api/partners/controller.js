@@ -92,8 +92,13 @@ exports.getPartners = async (req, res) => {
       query.name = { $regex: name, $options: "i" };
     }
     if (postalCode) {
-      query.postalCodes = { $regex: postalCode, $options: "i" };
+      query.$or = [
+        { "postalCodes.exact.code": { $regex: postalCode, $options: "i" } },
+        { "postalCodes.ranges.from": { $regex: postalCode, $options: "i" } },
+        { "postalCodes.ranges.to": { $regex: postalCode, $options: "i" } },
+      ];
     }
+
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: "i" } },

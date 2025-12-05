@@ -165,3 +165,41 @@ exports.updateStep = async (req, res) => {
     });
   }
 };
+
+exports.deleteStep = async (req, res) => {
+  try {
+    const { formId, stepId } = req.params;
+
+    // Fetch form
+    const form = await FormBuilder.findOne({ formId });
+    if (!form)
+      return res.status(404).json({ success: false, msg: "Form not found" });
+
+    // Find step index
+    const stepIndex = form.steps.findIndex((s) => s._id.toString() === stepId);
+    if (stepIndex === -1)
+      return res.status(404).json({ success: false, msg: "Step not found" });
+
+    // Remove the step
+    form.steps.splice(stepIndex, 1);
+
+    // Reorder remaining steps sequentially
+    form.steps = form.steps
+      .sort((a, b) => a.stepOrder - b.stepOrder)
+      .map((step, index) => ({ ...step.toObject(), stepOrder: index + 1 }));
+
+    // Save form
+    await form.save();
+
+    return res.json({
+      success: true,
+      msg: "Step deleted successfully",
+      steps: form.steps,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      msg: err.message,
+    });
+  }
+};

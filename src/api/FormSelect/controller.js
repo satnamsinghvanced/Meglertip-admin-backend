@@ -2,19 +2,24 @@ const FormSelect = require("../../../models/formSelect");
 
 exports.CreateFormSelect = async (req, res) => {
   try {
-    const {formTitle, formDescription , price } = req.body;
+    const { formTitle, formDescription, price } = req.body;
 
-    if ( !formTitle) {
+    if (!formTitle) {
       return res.status(400).json({
         success: false,
-        message: " formTitle is required",
+        message: " Form Title is required",
       });
     }
-
+    if (!price) {
+      return res.status(400).json({
+        success: false,
+        message: " Price is required",
+      });
+    }
     const newForm = await FormSelect.create({
       formTitle,
       formDescription,
-      price
+      price,
     });
 
     res.status(201).json({
@@ -29,7 +34,7 @@ exports.CreateFormSelect = async (req, res) => {
 
 exports.GetAllForms = async (req, res) => {
   try {
-    const forms = await FormSelect.find().sort({ formNumber: 1});
+    const forms = await FormSelect.find().sort({ formNumber: 1 });
 
     res.status(200).json({
       success: true,
@@ -62,11 +67,23 @@ exports.GetSingleForm = async (req, res) => {
 
 exports.UpdateFormSelect = async (req, res) => {
   try {
-    const { formTitle, formDescription , price} = req.body;
+    const { formTitle, formDescription, price } = req.body;
 
+    if (!formTitle) {
+      return res.status(400).json({
+        success: false,
+        message: " Form Title is required",
+      });
+    }
+    if (!price) {
+      return res.status(400).json({
+        success: false,
+        message: " Price is required",
+      });
+    }
     const updated = await FormSelect.findByIdAndUpdate(
       req.params.id,
-      { formTitle, formDescription, price},
+      { formTitle, formDescription, price },
       { new: true }
     );
 
