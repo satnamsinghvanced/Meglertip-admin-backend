@@ -7,7 +7,9 @@ const {
   deletePartner,
   questionForPartner,
   getAnwserOptionsForQuestion,
-  setPartnerLimit
+  setPartnerLimit,
+  getPartnerLimit,
+  leadsOfPartner
 } = require("./controller");
 
 const router = express.Router();
@@ -20,5 +22,7 @@ router.delete("/delete", deletePartner);
 router.get("/questions", questionForPartner);
 router.get("/answer", getAnwserOptionsForQuestion);
 router.put("/limit",setPartnerLimit )
+router.get("/get-limit", getPartnerLimit)
+router.get("/leads", leadsOfPartner)
 
 module.exports = router;

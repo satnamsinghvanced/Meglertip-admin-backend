@@ -66,7 +66,19 @@ exports.getArticleCategory = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+exports.getCategoriesAll = async (req, res) => {
+  try {
+    const categories = await ArticleCategory.find().select("title slug")
 
+    res.status(200).json({
+      success: true,
+      message: "Categories fetched successfully.",
+      data: categories,
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
 
 exports.getSingleArticleCategory = async (req, res) => {
   try {

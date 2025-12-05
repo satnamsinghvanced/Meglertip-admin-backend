@@ -109,34 +109,48 @@ exports.getStepsOfForm = async (req, res) => {
 exports.updateStep = async (req, res) => {
   try {
     const { formId, stepId } = req.params;
-    const { stepTitle, stepDescription, fields } = req.body;
+    const { stepTitle, stepDescription, stepOrder, fields } = req.body;
 
-    // Fetch the FormBuilder document
-    const form = await FormBuilder.findOne({formId:formId});
+    // Fetch form
+    const form = await FormBuilder.findOne({ formId: formId });
     if (!form)
       return res.status(404).json({ success: false, msg: "Form not found" });
 
-    // Locate the step
+    // Find step index
     const stepIndex = form.steps.findIndex(
       (s) => s._id.toString() === stepId
     );
-
     if (stepIndex === -1)
-      return res
-        .status(404)
-        .json({ success: false, msg: "Step not found" });
+      return res.status(404).json({ success: false, msg: "Step not found" });
 
-    // Update only provided fields
-    if (stepTitle !== undefined)
-      form.steps[stepIndex].stepTitle = stepTitle;
+    const step = form.steps[stepIndex];
 
-    if (stepDescription !== undefined)
-      form.steps[stepIndex].stepDescription = stepDescription;
+    // ===== Update Normal Fields =====
+    if (stepTitle !== undefined) step.stepTitle = stepTitle;
+    if (stepDescription !== undefined) step.stepDescription = stepDescription;
+    if (fields !== undefined) step.fields = fields;
 
-    if (fields !== undefined)
-      form.steps[stepIndex].fields = fields; // full replacement of fields array
+    // ===== Handle Step Order Swap =====
+    if (stepOrder !== undefined && stepOrder !== step.stepOrder) {
+      const targetOrder = stepOrder;
 
-    // Save
+      // Find step that currently has the target order
+      const otherStepIndex = form.steps.findIndex(
+        (s) => s.stepOrder === targetOrder
+      );
+
+      if (otherStepIndex !== -1) {
+        // Swap their stepOrder
+        form.steps[otherStepIndex].stepOrder = step.stepOrder;
+      }
+
+      // Move updated step to new order
+      step.stepOrder = targetOrder;
+
+      // Re-sort steps by stepOrder for consistency
+      form.steps.sort((a, b) => a.stepOrder - b.stepOrder);
+    }
+
     await form.save();
 
     return res.json({

@@ -7,14 +7,20 @@ const BASE_URL = "http://localhost:9090";
 const FrontenURl = "https://meglertip.vercel.app";
 async function generateSitemap() {
   try {
-    const companyRes = await axios.get(`${BASE_URL}/api/companies`);
-    const articleRes = await axios.get(`${BASE_URL}/api/article`);
+    const companyRes = await axios.get(`${BASE_URL}/api/sitemap/companies`);
+    const articleRes = await axios.get(`${BASE_URL}/api/sitemap/articles`);
+    const placesRes = await axios.get(`${BASE_URL}/api/sitemap/places`);
+    const countiesRes = await axios.get(`${BASE_URL}/api/sitemap/counties`);
 
     const companies = companyRes?.data?.data || [];
     const articles = articleRes?.data?.data || [];
+    const places = placesRes?.data?.data || [];
+    const counties = countiesRes?.data?.data || [];
 
 
     const companyUrls = companies.map((c) => `${FrontenURl}/eiendomsmegler/${c.slug}`);
+    const placesUrls = places.map((c) => `${FrontenURl}/eiendomsmegler/${c.slug}`);
+    const countiesUrls = counties.map((c) => `${FrontenURl}/eiendomsmegler?county=${c.slug}`);
 
     const articleUrls = articles.map((a) => 
       `${FrontenURl}/articles/${a.categoryId?.slug}/${a.slug}`
@@ -51,6 +57,24 @@ async function generateSitemap() {
     });
 
     articleUrls.forEach((url) => {
+      sitemapXml += `
+        <url>
+          <loc>${url}</loc>
+          <changefreq>daily</changefreq>
+          <priority>0.9</priority>
+        </url>`;
+    });
+
+    placesUrls.forEach((url) => {
+      sitemapXml += `
+        <url>
+          <loc>${url}</loc>
+          <changefreq>daily</changefreq>
+          <priority>0.9</priority>
+        </url>`;
+    });
+
+    countiesUrls.forEach((url) => {
       sitemapXml += `
         <url>
           <loc>${url}</loc>

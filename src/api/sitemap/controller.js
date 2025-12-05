@@ -1,82 +1,52 @@
-const Sitemap = require("../../../models/sitemap");
 
-exports.getSitemap = async (req, res) => {
+const article = require("../../../models/article");
+const companies = require("../../../models/companies");
+const county = require("../../../models/county");
+const places = require("../../../models/places");
+
+
+exports.getCompanies = async (req, res) => {
   try {
-    const sitemap = await Sitemap.findOne();
-
-    if (!sitemap) {
-      return res.status(404).json({
-        success: false,
-        message: "Sitemap not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      data: sitemap,
-    });
+    const listOfCompanies = await companies.find().select("slug");
+    res.json({data:listOfCompanies});
   } catch (error) {
-    console.error("Get Sitemap Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
-
-exports.createSitemap = async (req, res) => {
+exports.getPlaces = async (req, res) => {
   try {
-    const exists = await Sitemap.findOne();
-    if (exists) {
-      return res.status(400).json({
-        success: false,
-        message: "Sitemap already exists",
-      });
-    }
-
-    const sitemap = await Sitemap.create(req.body);
-
-    res.status(201).json({
-      success: true,
-      message: "Sitemap created successfully",
-      data: sitemap,
-    });
+    const listOfPlaces = await places.find().select("slug");
+    res.json({data:listOfPlaces});
   } catch (error) {
-    console.error("Create Sitemap Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
-
-exports.updateSitemap = async (req, res) => {
+exports.getArticles = async (req, res) => {
   try {
-    const sitemap = await Sitemap.findOne();
-
-    if (!sitemap) {
-      return res.status(404).json({
-        success: false,
-        message: "Sitemap not found",
-      });
-    }
-
-    const updated = await Sitemap.findByIdAndUpdate(
-      sitemap._id,
-      req.body,
-      { new: true }
-    );
-
-    res.json({
-      success: true,
-      message: "Sitemap updated successfully",
-      data: updated,
-    });
+    const listOfArticles = await article.find().populate("categoryId", "title slug").select("slug");
+    res.json({data:listOfArticles});
   } catch (error) {
-    console.error("Update Sitemap Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Server error",
-    });
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
   }
 };
+exports.getCounties = async (req, res) => {
+  try {
+    const listOfCounties = await county.find().select("slug");
+    res.json({data:listOfCounties});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
+};
+// exports.getCompanies = async (req, res) => {
+//   try {
+//     const companies = await companies.find();
+//     res.json(companies);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ message: "Server Error" });
+//   }
+// };

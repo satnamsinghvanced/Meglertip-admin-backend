@@ -1,15 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const {
-  getSitemap,
-  createSitemap,
-  updateSitemap,
+  getCompanies,
+  getPlaces,
+  getArticles,
+  getCounties,
 } = require("./controller");
 
-router.get("/", getSitemap);
+router.get("/companies", getCompanies);
+router.get("/places", getPlaces);
+router.get("/articles", getArticles);
+router.get("/counties", getCounties);
 
-router.post("/", createSitemap);
-
-router.put("/", updateSitemap);
 
 module.exports = router;

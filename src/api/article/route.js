@@ -8,8 +8,9 @@ const {
   updateArticle,
   deleteArticle,
 } = require("../article/controller");
+const auth = require("../../../middleware/middleware");
 
-router.post("/create", uploadImage.single("image"), createArticle);
+router.post("/create", uploadImage.single("image"), auth, createArticle);
 
 router.get("/", getArticles);
 

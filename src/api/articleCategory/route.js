@@ -5,6 +5,7 @@ const {
   getSingleArticleCategory,
   updateArticleCategory,
   deleteArticleCategory,
+  getCategoriesAll
 } = require("../articleCategory/controller");
 
 const router = express.Router();
@@ -12,6 +13,9 @@ const router = express.Router();
 router.post("/create", createArticleCategory);
 
 router.get("/", getArticleCategory);
+router.get("/all", getCategoriesAll);
+
+
 
 router.get("/details/:id", getSingleArticleCategory);
 

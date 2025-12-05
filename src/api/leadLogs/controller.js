@@ -1,4 +1,4 @@
-const Lead = require("../../../models/user"); 
+const Lead = require("../../../models/user");
 const Partner = require("../../../models/partners");
 
 exports.getAllLeads = async (req, res) => {
@@ -84,5 +84,90 @@ exports.getAllLeads = async (req, res) => {
     });
   }
 };
+exports.updateLeadStatus = async (req, res) => {
+  try {
+    const { leadId, status } = req.body;
 
+    const lead = await Lead.findByIdAndUpdate(
+      leadId,
+      { status },
+      { new: true }
+    );
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
 
+    return res.status(200).json({
+      success: true,
+      message: "Lead status updated successfully",
+      data: lead,
+    });
+  } catch (error) {
+    console.error("Error updating lead status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+exports.updateLeadProfit = async (req, res) => {
+  try {
+    const { leadId, profit } = req.body;
+
+    const lead = await Lead.findByIdAndUpdate(
+      leadId,
+      { profit },
+      { new: true }
+    );
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      message: "Lead profit updated successfully",
+      data: lead,
+    });
+  } catch (error) {
+    console.error("Error updating lead profit:", error);
+  }
+};
+
+exports.getLeadById = async (req, res) => {
+  try {
+    const {id} = req.params.id;
+console.log(id)
+    if (!id) {
+      return res.status(400).json({
+        success: false,
+        message: "Lead ID is required",
+      });
+    }
+
+    const lead = await Lead.findById(id).populate("partnerIds", "name email"); // ← fixes your partner issue
+
+    if (!lead) {
+      return res.status(404).json({
+        success: false,
+        message: "Lead not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Lead details fetched successfully.",
+      data: lead,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message || "Internal Server Error",
+    });
+  }
+};
