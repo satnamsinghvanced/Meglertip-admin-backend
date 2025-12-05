@@ -17,9 +17,9 @@ exports.getAllLeads = async (req, res) => {
 
     if (search) {
       filter.$or = [
-        { "dynamicFields.name": { $regex: search, $options: "i" } },
-        { "dynamicFields.email": { $regex: search, $options: "i" } },
-        { "dynamicFields.phone": { $regex: search, $options: "i" } },
+        { "dynamicFields.values.name": { $regex: search, $options: "i" } },
+        { "dynamicFields.values.email": { $regex: search, $options: "i" } },
+        { "dynamicFields.values.phone": { $regex: search, $options: "i" } },
       ];
     }
 
@@ -30,45 +30,45 @@ exports.getAllLeads = async (req, res) => {
       .skip(skip)
       .limit(limit);
 
-    const formatted = leads.map((lead) => {
-      const leadObj = lead.toObject();
-      const partner = lead.partnerIds?.[0] || null;
+    // const formatted = leads.map((lead) => {
+    //   const leadObj = lead.toObject();
+    //   const partner = lead.partnerIds?.[0] || null;
 
-      let computedProfit = 0;
+    //   let computedProfit = 0;
 
-      if (partner) {
-        const leadPreference = lead.dynamicFields?.preferranceType;
+    //   if (partner) {
+    //     const leadPreference = lead.dynamicFields?.preferranceType;
 
-        // Check partner wishes
-        const preferenceWish = partner.wishes?.find(
-          (w) => w.question === "preferranceType"
-        );
+    //     // Check partner wishes
+    //     const preferenceWish = partner.wishes?.find(
+    //       (w) => w.question === "preferranceType"
+    //     );
 
-        const isSupported =
-          preferenceWish &&
-          preferenceWish.expectedAnswer?.includes(leadPreference);
+    //     const isSupported =
+    //       preferenceWish &&
+    //       preferenceWish.expectedAnswer?.includes(leadPreference);
 
-        if (isSupported) {
-          // Pick highest priced leadType
-          if (partner.leadTypes?.length) {
-            const highestPrice = Math.max(
-              ...partner.leadTypes.map((lt) => lt.price || 0)
-            );
-            computedProfit = highestPrice;
-          }
-        }
-      }
+    //     if (isSupported) {
+    //       // Pick highest priced leadType
+    //       if (partner.leadTypes?.length) {
+    //         const highestPrice = Math.max(
+    //           ...partner.leadTypes.map((lt) => lt.price || 0)
+    //         );
+    //         computedProfit = highestPrice;
+    //       }
+    //     }
+    //   }
 
-      return {
-        ...leadObj,
-        partner,
-        profit: computedProfit,
-      };
-    });
+    //   return {
+    //     ...leadObj,
+    //     partner,
+    //     profit: computedProfit,
+    //   };
+    // });
 
     res.json({
       success: true,
-      leads: formatted,
+      leads: leads,
       pagination: {
         total,
         page,
@@ -141,8 +141,8 @@ exports.updateLeadProfit = async (req, res) => {
 
 exports.getLeadById = async (req, res) => {
   try {
-     const { id } = req.params;   
- 
+    const { id } = req.params;
+
     if (!id) {
       return res.status(400).json({
         success: false,
