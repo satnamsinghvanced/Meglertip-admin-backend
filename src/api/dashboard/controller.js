@@ -178,23 +178,26 @@ exports.getDashboardStats = async (req, res) => {
 exports.totalLeads = async (req, res) => {
   try {
     const leadCounts = await User.aggregate([
+      { $unwind: "$dynamicFields" }, // flatten the array
       {
         $group: {
-          _id: "$dynamicFields.preferranceType",
+          _id: "$dynamicFields.formTitle", // group by formTitle
           count: { $sum: 1 },
         },
       },
     ]);
-   let formatted = {};
+
+    let formatted = {};
     let total = 0;
 
     leadCounts.forEach((item) => {
       formatted[item._id] = item.count;
       total += item.count;
     });
+
     return res.status(200).json({
       success: true,
-       totalLeads: total, 
+      totalLeads: total,
       data: formatted,
     });
   } catch (error) {
