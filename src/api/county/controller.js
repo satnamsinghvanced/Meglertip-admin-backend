@@ -2,7 +2,7 @@ const County = require("../../../models/county");
 
 exports.createCounty = async (req, res) => {
   try {
-    const { name, slug } = req.body;
+    const { name, slug, excerpt } = req.body;
     if (!name || !slug ) {
       return res.status(400).json({ message: "All fields are required." });
     }
@@ -19,6 +19,7 @@ exports.createCounty = async (req, res) => {
     const county = await County.create({
       name: name.trim(),
       slug: slug.trim(),
+      excerpt: excerpt.trim(),
     });
 
     res.status(201).json({
@@ -45,6 +46,7 @@ exports.getCounties = async (req, res) => {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
         { slug: { $regex: search, $options: "i" } },
+        { excerpt: { $regex: search, $options: "i" } },
       ];
     }
     
@@ -100,11 +102,11 @@ exports.getCountyById = async (req, res) => {
 
 exports.updateCounty = async (req, res) => {
   try {
-    const { name, slug } = req.body;
+    const { name, slug, excerpt} = req.body;
 
     const county = await County.findByIdAndUpdate(
       req.params.id,
-      { name, slug },
+      { name, slug , excerpt},
       { new: true, runValidators: true }
     );
 
