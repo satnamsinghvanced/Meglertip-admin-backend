@@ -2,8 +2,8 @@ const County = require("../../../models/county");
 
 exports.createCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt } = req.body;
-    if (!name || !slug ) {
+    const { name, slug, excerpt, icon } = req.body;
+    if (!name || !slug) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
@@ -16,10 +16,12 @@ exports.createCounty = async (req, res) => {
         .status(400)
         .json({ message: "County with that name or slug already exists." });
     }
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const county = await County.create({
       name: name.trim(),
       slug: slug.trim(),
       excerpt: excerpt.trim(),
+      icon: imagePath,
     });
 
     res.status(201).json({
@@ -49,7 +51,7 @@ exports.getCounties = async (req, res) => {
         { excerpt: { $regex: search, $options: "i" } },
       ];
     }
-    
+
     const sortField = sortBy || "createdAt";
     const sortDirection = sortOrder === "asc" ? 1 : -1;
 
@@ -74,8 +76,7 @@ exports.getCounties = async (req, res) => {
 };
 exports.getCountiesForPlace = async (req, res) => {
   try {
-
-    const counties = await County.find()
+    const counties = await County.find();
     res.status(200).json({
       success: true,
       message: "Counties fetched successfully.",
@@ -102,11 +103,11 @@ exports.getCountyById = async (req, res) => {
 
 exports.updateCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt} = req.body;
-
+    const { name, slug, excerpt, icon } = req.body;
+    const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const county = await County.findByIdAndUpdate(
       req.params.id,
-      { name, slug , excerpt},
+      { name, slug, excerpt, icon: imagePath },
       { new: true, runValidators: true }
     );
 

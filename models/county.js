@@ -11,6 +11,7 @@ const countySchema = new mongoose.Schema(
       type: String,
     },
     excerpt: { type: String },
+    icon: { type: String },
   },
   { timestamps: true }
 );
