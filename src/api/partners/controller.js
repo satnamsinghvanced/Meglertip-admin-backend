@@ -272,6 +272,7 @@ exports.questionForPartner = async (req, res) => {
     res.status(500).json({ success: false, message: "Server error" });
   }
 };
+
 exports.getAnwserOptionsForQuestion = async (req, res) => {
   try {
     const { question } = req.query;
@@ -283,14 +284,30 @@ exports.getAnwserOptionsForQuestion = async (req, res) => {
       });
     }
 
-    const form = await Form.findOne();
-    if (!form) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Form not found" });
+    // ✅ Special case: leadType – fetch from formSelect
+    if (question === "leadType") {
+      const leadTypes = await formSelect.find();
+
+          const options = leadTypes.map((item) => item.formTitle); 
+
+      return res.status(200).json({
+        success: true,
+        question: "leadType",
+        type: "select",
+        options,
+      });
     }
 
-    // Find the field by name (question)
+    // ✅ For all other questions → fetch from Form model
+    const form = await Form.findOne();
+    if (!form) {
+      return res.status(404).json({
+        success: false,
+        message: "Form not found",
+      });
+    }
+
+    // Find matching field
     let foundField = null;
 
     form.steps.forEach((step) => {
@@ -308,20 +325,21 @@ exports.getAnwserOptionsForQuestion = async (req, res) => {
       });
     }
 
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       question: foundField.name,
       type: foundField.type,
       options: foundField.options || [],
     });
   } catch (error) {
-    console.error(error);
+    console.error("Error:", error);
     res.status(500).json({
       success: false,
       message: "Server error",
     });
   }
 };
+
 
 exports.setPartnerLimit = async (req, res) => {
   try {

@@ -18,7 +18,7 @@ router.get("/details", getPartnerById);
 router.put("/update", updatePartner);
 router.delete("/delete", deletePartner);
 router.get("/questions", questionForPartner);
-router.get("/anwser", getAnwserOptionsForQuestion);
+router.get("/answer", getAnwserOptionsForQuestion);
 router.put("/limit",setPartnerLimit )
 
 module.exports = router;
