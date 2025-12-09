@@ -28,7 +28,9 @@ exports.getAllLeads = async (req, res) => {
     const leads = await Lead.find(filter)
       .populate("partnerIds", "name email phone wishes leadTypes")
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
 
     // const formatted = leads.map((lead) => {
     //   const leadObj = lead.toObject();

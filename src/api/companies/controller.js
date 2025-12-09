@@ -32,7 +32,7 @@ exports.createCompany = async (req, res) => {
       description,
       extractor,
       brokerSites,
-      ...restOfData
+      ...restOfData,
     });
 
     await newCompany.save();
@@ -80,6 +80,26 @@ exports.getCompanies = async (req, res) => {
   }
 };
 
+exports.getCompaniesAll = async (req, res) => {
+  try {
+    const search = req.query.search || "";
+
+    const filter = {};
+    if (search) {
+      filter.companyName = { $regex: search, $options: "i" };
+    }
+    const companies = await Company.find(filter)
+    .sort({ createdAt: -1 });
+
+    res.status(200).json({
+      success: true,
+      message: "Companies fetched successfully.",
+      data: companies
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+};
 
 exports.getCompanyById = async (req, res) => {
   try {
