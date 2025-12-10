@@ -33,7 +33,7 @@ FormSelectSchema.pre("save", async function (next) {
 
   const lastForm = await mongoose.model("FormSelect").findOne().sort({ formNumber: -1 });
 
-  this.formNumber = lastForm ? lastForm.formNumber + 1 : 1;
+  this.formNumber = lastForm ? lastForm.formNumber + 1 : 1000;
 
   next();
 });
