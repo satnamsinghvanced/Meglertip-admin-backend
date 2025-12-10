@@ -1,5 +1,6 @@
 const Lead = require("../../../models/user");
 const Partner = require("../../../models/partners");
+const formSelect = require("../../../models/formSelect");
 
 exports.getAllLeads = async (req, res) => {
   try {
@@ -30,7 +31,6 @@ exports.getAllLeads = async (req, res) => {
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-
 
     // const formatted = leads.map((lead) => {
     //   const leadObj = lead.toObject();
@@ -154,17 +154,24 @@ exports.getLeadById = async (req, res) => {
 
     const lead = await Lead.findById(id).populate("partnerIds", "name email"); // ← fixes your partner issue
 
+    const FormId = await formSelect.findById(lead.dynamicFields[0].formId);
+    const formNumber = FormId.formNumber;
+
     if (!lead) {
       return res.status(404).json({
         success: false,
         message: "Lead not found",
       });
     }
-
+    const finalLead = {
+      ...lead.toObject(),
+      formNumber: formNumber,
+    };
     res.status(200).json({
       success: true,
       message: "Lead details fetched successfully.",
-      data: lead,
+      data: finalLead,
+      // formNumber: formNumber,
     });
   } catch (error) {
     res.status(500).json({

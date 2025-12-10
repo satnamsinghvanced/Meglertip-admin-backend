@@ -136,7 +136,7 @@ exports.getPartnerById = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Partner ID is required" });
-    const partner = await Partners.findById(id);
+    const partner = await Partners.findById(id).populate("leadTypes.typeId");
     if (!partner)
       return res
         .status(404)
