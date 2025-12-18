@@ -20,11 +20,14 @@ app.use("/uploads", express.static("uploads"));
 app.get('/', (req, res) => {
   res.send('Node.js server is running ');
 });
+
 mongoose
   .connect(process.env.MONGO_URI, {
     // useNewUrlParser: true,
     // useUnifiedTopology: true,
+
   })
+
   .then(() => {
     console.log('✅ MongoDB connected');
     app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

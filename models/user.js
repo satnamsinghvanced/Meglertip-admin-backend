@@ -20,8 +20,14 @@ const userSchema = new Schema(
     },
     partnerIds: [
       {
-        type: Schema.Types.ObjectId,
-        ref: "CollaboratePartners",
+        partnerId: {
+          type: Schema.Types.ObjectId,
+          ref: "CollaboratePartners",
+        },
+        leadPrice: {
+          type: Number,
+          default: 0,
+        },
       },
     ],
 
