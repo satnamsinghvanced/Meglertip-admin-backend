@@ -10,6 +10,12 @@ exports.createArticleCategory = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Slug already exists" });
     }
+     if (categoryPosition !== undefined && categoryPosition !== null) {
+      await ArticleCategory.updateMany(
+        { categoryPosition: { $gte: categoryPosition } },
+        { $inc: { categoryPosition: 1 } }
+      );
+    }
 
     const newCategory = new ArticleCategory({
       title,
