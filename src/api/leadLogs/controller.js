@@ -12,7 +12,6 @@ exports.getAllLeads = async (req, res) => {
 
     const skip = (page - 1) * limit;
 
-    // Build initial filter
     let filter = {};
     if (status) filter.status = status;
 
@@ -23,7 +22,6 @@ exports.getAllLeads = async (req, res) => {
         { "dynamicFields.values.phone": { $regex: search, $options: "i" } },
       ];
 
-      // Add uniqueId filter if search is numeric
       if (!isNaN(search)) {
         orFilters.push({ uniqueId: Number(search) });
       }
@@ -31,25 +29,24 @@ exports.getAllLeads = async (req, res) => {
       filter.$or = orFilters;
     }
 
-    // Count total documents
     const total = await Lead.countDocuments(filter);
 
-    // Fetch leads with partners populated
     let leads = await Lead.find(filter)
-      .populate("partnerIds.partnerId", "name email phone wishes leadTypes")
+      .populate("partnerIds.partnerId", "name email phone")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    // Filter partnerIds inside each lead (without removing lead)
+    // ✅ Correct partner filtering
     if (search) {
       const lowerSearch = search.toLowerCase();
+
       leads = leads.map((lead) => ({
         ...lead.toObject(),
         partnerIds: lead.partnerIds.filter(
-          (p) =>
-            p.name?.toLowerCase().includes(lowerSearch) ||
-            p.email?.toLowerCase().includes(lowerSearch)
+          ({ partnerId }) =>
+            partnerId?.name?.toLowerCase().includes(lowerSearch) ||
+            partnerId?.email?.toLowerCase().includes(lowerSearch)
         ),
       }));
     }
@@ -72,6 +69,86 @@ exports.getAllLeads = async (req, res) => {
     });
   }
 };
+
+
+exports.getLeadByPartnerName = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const search = req.query.search || "";
+
+    const skip = (page - 1) * limit;
+
+    if (!search) {
+      return res.status(400).json({
+        success: false,
+        message: "Partner name is required",
+      });
+    }
+
+    // 1️⃣ Find partner IDs by name
+    const partners = await Partner.find({
+      name: { $regex: search, $options: "i" },
+    }).select("_id");
+
+    if (!partners.length) {
+      return res.json({
+        success: true,
+        leads: [],
+        pagination: {
+          total: 0,
+          page,
+          limit,
+          pages: 0,
+        },
+      });
+    }
+
+    const partnerIds = partners.map((p) => p._id);
+
+    // 2️⃣ Count leads
+    const total = await Lead.countDocuments({
+      "partnerIds.partnerId": { $in: partnerIds },
+    });
+
+    // 3️⃣ Fetch leads
+    const leads = await Lead.find({
+      "partnerIds.partnerId": { $in: partnerIds },
+    })
+      .populate("partnerIds.partnerId", "name email phone")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
+
+    // 4️⃣ Filter partnerIds inside leads
+    const filteredLeads = leads.map((lead) => ({
+      ...lead.toObject(),
+      partnerIds: lead.partnerIds.filter((p) =>
+        partnerIds.some(
+          (id) => id.toString() === p.partnerId?._id?.toString()
+        )
+      ),
+    }));
+
+    res.json({
+      success: true,
+      leads: filteredLeads,
+      pagination: {
+        total,
+        page,
+        limit,
+        pages: Math.ceil(total / limit),
+      },
+    });
+  } catch (err) {
+    console.error("Get leads by partner name error:", err);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch leads",
+    });
+  }
+};
+
 
 exports.updateLeadStatus = async (req, res) => {
   try {
