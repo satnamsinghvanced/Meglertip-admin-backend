@@ -304,12 +304,14 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
   try {
     const { partnerId, startDate, endDate, filter } = req.query;
 
-    if (!partnerId)
-      return res
-        .status(400)
-        .json({ success: false, message: "partnerId is required" });
+    if (!partnerId) {
+      return res.status(400).json({
+        success: false,
+        message: "partnerId is required",
+      });
+    }
 
-    // Date filter
+    // ================= DATE FILTER =================
     let dateFilter = {};
     if (filter === "currentMonth") {
       const start = new Date();
@@ -318,17 +320,8 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
       dateFilter = { $gte: start };
     } else if (filter === "previousMonth") {
       const now = new Date();
-      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1); // 1st day of previous month
-      const end = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        0,
-        23,
-        59,
-        59,
-        999
-      ); // last day of previous month
-
+      const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+      const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
       dateFilter = { $gte: start, $lte: end };
     }
 
@@ -338,23 +331,20 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
       if (endDate) dateFilter.$lte = new Date(endDate);
     }
 
+    // ================= PIPELINE =================
     const result = await Lead.aggregate([
-      // Match leads for the given partner and date range
       {
         $match: {
           "partnerIds.partnerId": new mongoose.Types.ObjectId(partnerId),
           ...(Object.keys(dateFilter).length && { createdAt: dateFilter }),
         },
       },
-      // Unwind partnerIds to handle multiple partners
       { $unwind: "$partnerIds" },
-      // Match only the requested partner
       {
         $match: {
           "partnerIds.partnerId": new mongoose.Types.ObjectId(partnerId),
         },
       },
-      // Extract leadType from dynamicFields
       {
         $addFields: {
           leadType: {
@@ -365,31 +355,96 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
           },
         },
       },
-      // Group by leadType
+
+      // ================= DETAIL LEVEL =================
       {
-        $group: {
-          _id: "$leadType",
-          count: { $sum: 1 },
-          pricePerLead: { $first: "$partnerIds.leadPrice" },
-          leadIds: { $push: "$uniqueId" },
-          totalPrice: { $sum: "$partnerIds.leadPrice" },
+        $project: {
+          leadId: "$uniqueId",
+          leadType: 1,
+          price: "$partnerIds.leadPrice",
+          sent: "$createdAt",
         },
       },
-      // Final aggregation to combine everything per partner
+
+      // ================= GROUP EVERYTHING =================
       {
         $group: {
-          _id: new mongoose.Types.ObjectId(partnerId), // partnerId as _id
-          leadTypes: {
+          _id: new mongoose.Types.ObjectId(partnerId),
+
+          leadDetails: {
             $push: {
-              leadType: "$_id",
-              count: "$count",
-              pricePerLead: "$pricePerLead",
-              totalPrice: "$totalPrice",
-              leadIds: "$leadIds",
+              leadId: "$leadId",
+              type: "$leadType",
+              price: "$price",
+              sent: "$sent",
             },
           },
-          totalLeads: { $sum: "$count" },
-          grandTotal: { $sum: "$totalPrice" },
+
+          leadTypes: {
+            $push: {
+              leadType: "$leadType",
+              price: "$price",
+            },
+          },
+
+          totalLeads: { $sum: 1 },
+          grandTotal: { $sum: "$price" },
+        },
+      },
+
+      // ================= BUILD SUMMARY =================
+      {
+        $addFields: {
+          leadTypes: {
+            $map: {
+              input: {
+                $setUnion: ["$leadTypes.leadType"],
+              },
+              as: "type",
+              in: {
+                leadType: "$$type",
+                count: {
+                  $size: {
+                    $filter: {
+                      input: "$leadTypes",
+                      as: "lt",
+                      cond: { $eq: ["$$lt.leadType", "$$type"] },
+                    },
+                  },
+                },
+                pricePerLead: {
+                  $first: {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: "$leadTypes",
+                          as: "lt",
+                          cond: { $eq: ["$$lt.leadType", "$$type"] },
+                        },
+                      },
+                      as: "x",
+                      in: "$$x.price",
+                    },
+                  },
+                },
+                totalPrice: {
+                  $sum: {
+                    $map: {
+                      input: {
+                        $filter: {
+                          input: "$leadTypes",
+                          as: "lt",
+                          cond: { $eq: ["$$lt.leadType", "$$type"] },
+                        },
+                      },
+                      as: "x",
+                      in: "$$x.price",
+                    },
+                  },
+                },
+              },
+            },
+          },
         },
       },
     ]);
@@ -399,14 +454,17 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
       data: result[0] || {
         _id: partnerId,
         leadTypes: [],
+        leadDetails: [],
         totalLeads: 0,
         grandTotal: 0,
       },
     });
   } catch (error) {
     console.error("Invoice summary error:", error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Failed to generate invoice summary" });
+    res.status(500).json({
+      success: false,
+      message: "Failed to generate invoice summary",
+    });
   }
 };
+
