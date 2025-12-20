@@ -70,7 +70,6 @@ exports.getAllLeads = async (req, res) => {
   }
 };
 
-
 exports.getLeadByPartnerName = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -124,9 +123,7 @@ exports.getLeadByPartnerName = async (req, res) => {
     const filteredLeads = leads.map((lead) => ({
       ...lead.toObject(),
       partnerIds: lead.partnerIds.filter((p) =>
-        partnerIds.some(
-          (id) => id.toString() === p.partnerId?._id?.toString()
-        )
+        partnerIds.some((id) => id.toString() === p.partnerId?._id?.toString())
       ),
     }));
 
@@ -148,7 +145,6 @@ exports.getLeadByPartnerName = async (req, res) => {
     });
   }
 };
-
 
 exports.updateLeadStatus = async (req, res) => {
   try {
@@ -313,6 +309,7 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
 
     // ================= DATE FILTER =================
     let dateFilter = {};
+
     if (filter === "currentMonth") {
       const start = new Date();
       start.setDate(1);
@@ -321,7 +318,15 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
     } else if (filter === "previousMonth") {
       const now = new Date();
       const start = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-      const end = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59, 999);
+      const end = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        0,
+        23,
+        59,
+        59,
+        999
+      );
       dateFilter = { $gte: start, $lte: end };
     }
 
@@ -333,18 +338,41 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
 
     // ================= PIPELINE =================
     const result = await Lead.aggregate([
+      // 1️⃣ Match partner + date
       {
         $match: {
           "partnerIds.partnerId": new mongoose.Types.ObjectId(partnerId),
           ...(Object.keys(dateFilter).length && { createdAt: dateFilter }),
         },
       },
+
+      // 2️⃣ Unwind partnerIds
       { $unwind: "$partnerIds" },
+
       {
         $match: {
           "partnerIds.partnerId": new mongoose.Types.ObjectId(partnerId),
         },
       },
+
+      // 3️⃣ Lookup partner BEFORE grouping
+      {
+        $lookup: {
+          from: "collaboratepartners",
+          localField: "partnerIds.partnerId",
+          foreignField: "_id",
+          as: "partner",
+        },
+      },
+      {
+        $addFields: {
+          partnerName: {
+            $ifNull: [{ $first: "$partner.name" }, "Unknown Partner"],
+          },
+        },
+      },
+
+      // 4️⃣ Detect lead type
       {
         $addFields: {
           leadType: {
@@ -356,9 +384,10 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
         },
       },
 
-      // ================= DETAIL LEVEL =================
+      // 5️⃣ Shape lead-level data
       {
         $project: {
+          partnerName: 1,
           leadId: "$uniqueId",
           leadType: 1,
           price: "$partnerIds.leadPrice",
@@ -366,10 +395,12 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
         },
       },
 
-      // ================= GROUP EVERYTHING =================
+      // 6️⃣ Group everything by partner
       {
         $group: {
-          _id: new mongoose.Types.ObjectId(partnerId),
+          _id: "$partnerIds.partnerId",
+
+          partnerName: { $first: "$partnerName" },
 
           leadDetails: {
             $push: {
@@ -392,14 +423,12 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
         },
       },
 
-      // ================= BUILD SUMMARY =================
+      // 7️⃣ Build lead type summary
       {
         $addFields: {
           leadTypes: {
             $map: {
-              input: {
-                $setUnion: ["$leadTypes.leadType"],
-              },
+              input: { $setUnion: ["$leadTypes.leadType"] },
               as: "type",
               in: {
                 leadType: "$$type",
@@ -451,13 +480,15 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data: result[0] || {
-        _id: partnerId,
-        leadTypes: [],
-        leadDetails: [],
-        totalLeads: 0,
-        grandTotal: 0,
-      },
+      data:
+        result[0] || {
+          _id: partnerId,
+          partnerName: "Unknown Partner",
+          leadTypes: [],
+          leadDetails: [],
+          totalLeads: 0,
+          grandTotal: 0,
+        },
     });
   } catch (error) {
     console.error("Invoice summary error:", error);
