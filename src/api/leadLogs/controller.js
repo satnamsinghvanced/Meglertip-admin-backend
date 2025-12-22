@@ -9,11 +9,20 @@ exports.getAllLeads = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const search = req.query.search || "";
     const status = req.query.status || "";
+    const formType = req.query.formType || "";
 
     const skip = (page - 1) * limit;
 
     let filter = {};
+
     if (status) filter.status = status;
+
+    if (formType) {
+      filter["dynamicFields.values.selectedFormTitle"] = {
+        $regex: `^${formType}$`,
+        $options: "i",
+      };
+    }
 
     if (search) {
       const orFilters = [
@@ -37,10 +46,9 @@ exports.getAllLeads = async (req, res) => {
       .limit(limit)
       .sort({ createdAt: -1 });
 
-    // ✅ Correct partner filtering
+    // Optional: partner search inside populated data
     if (search) {
       const lowerSearch = search.toLowerCase();
-
       leads = leads.map((lead) => ({
         ...lead.toObject(),
         partnerIds: lead.partnerIds.filter(
@@ -69,6 +77,7 @@ exports.getAllLeads = async (req, res) => {
     });
   }
 };
+
 
 exports.getLeadByPartnerName = async (req, res) => {
   try {
@@ -257,18 +266,16 @@ exports.updateLeadPartnerPrice = async (req, res) => {
 exports.getLeadById = async (req, res) => {
   try {
     const { id } = req.params;
-
     if (!id) {
       return res.status(400).json({
         success: false,
         message: "Lead ID is required",
       });
     }
-
     const lead = await Lead.findById(id).populate(
       "partnerIds.partnerId",
       "name email"
-    ); // ← fixes your partner issue
+    );
 
     const FormId = await formSelect.findById(lead.dynamicFields[0].formId);
     const formNumber = FormId.formNumber;
@@ -332,8 +339,18 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
 
     if (startDate || endDate) {
       dateFilter = {};
-      if (startDate) dateFilter.$gte = new Date(startDate);
-      if (endDate) dateFilter.$lte = new Date(endDate);
+
+      if (startDate) {
+        const start = new Date(startDate);
+        start.setHours(0, 0, 0, 0);
+        dateFilter.$gte = start;
+      }
+
+      if (endDate) {
+        const end = new Date(endDate);
+        end.setHours(23, 59, 59, 999);
+        dateFilter.$lte = end;
+      }
     }
 
     // ================= PIPELINE =================

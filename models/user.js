@@ -37,9 +37,21 @@ const userSchema = new Schema(
     },
 
     dynamicFields: { type: mongoose.Schema.Types.Mixed, default: {} },
-    emailResults: {
-      type: String,
-    },
+    emailResults: [
+      {
+        partnerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "CollaboratePartners",
+        },
+        email: String,
+        status: {
+          type: String,
+          enum: ["sent", "failed", "pending"],
+        },
+        sentAt: Date,
+        error: String,
+      },
+    ],
   },
 
   { timestamps: true }
