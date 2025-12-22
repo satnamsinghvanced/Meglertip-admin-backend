@@ -422,7 +422,14 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
           grandTotal: { $sum: "$price" },
         },
       },
-
+      {
+        $lookup: {
+          from: "formselects", // ⚠️ collection name (check exact spelling)
+          localField: "leadTypes.leadType",
+          foreignField: "formTitle",
+          as: "formPrices",
+        },
+      },
       // 7️⃣ Build lead type summary
       {
         $addFields: {
@@ -432,6 +439,8 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
               as: "type",
               in: {
                 leadType: "$$type",
+
+                // ✅ COUNT
                 count: {
                   $size: {
                     $filter: {
@@ -441,21 +450,30 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
                     },
                   },
                 },
+
+                // ✅ EXACT price from FormSelect table
                 pricePerLead: {
-                  $first: {
-                    $map: {
-                      input: {
-                        $filter: {
-                          input: "$leadTypes",
-                          as: "lt",
-                          cond: { $eq: ["$$lt.leadType", "$$type"] },
+                  $ifNull: [
+                    {
+                      $first: {
+                        $map: {
+                          input: {
+                            $filter: {
+                              input: "$formPrices",
+                              as: "fp",
+                              cond: { $eq: ["$$fp.formTitle", "$$type"] },
+                            },
+                          },
+                          as: "x",
+                          in: "$$x.price",
                         },
                       },
-                      as: "x",
-                      in: "$$x.price",
                     },
-                  },
+                    0,
+                  ],
                 },
+
+                // ✅ TOTAL = sum of saved lead prices
                 totalPrice: {
                   $sum: {
                     $map: {
@@ -480,15 +498,14 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      data:
-        result[0] || {
-          _id: partnerId,
-          partnerName: "Unknown Partner",
-          leadTypes: [],
-          leadDetails: [],
-          totalLeads: 0,
-          grandTotal: 0,
-        },
+      data: result[0] || {
+        _id: partnerId,
+        partnerName: "Unknown Partner",
+        leadTypes: [],
+        leadDetails: [],
+        totalLeads: 0,
+        grandTotal: 0,
+      },
     });
   } catch (error) {
     console.error("Invoice summary error:", error);
@@ -498,4 +515,3 @@ exports.getPartnerLeadInvoiceSummary = async (req, res) => {
     });
   }
 };
-
