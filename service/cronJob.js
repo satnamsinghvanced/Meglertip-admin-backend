@@ -141,7 +141,7 @@ cron.schedule("0 0 * * *", async () => {
       lastDayEnd
     );
     const leads = await user.find({
-      createdAt: { $gte: lastDayStart, $lte: lastDayEnd },
+      createdAt: { $gte: lastDayStart, $lte: lastDayEnd }, status : "Complete"
     });
     console.log(`Found ${leads.length} lead(s)`);
 // console.log(leads , "lead data");
