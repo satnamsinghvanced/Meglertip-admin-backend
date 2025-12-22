@@ -3,7 +3,8 @@ const Partner = require("../../../models/partners");
 
 exports.getDashboardStats = async (req, res) => {
   try {
-    const { start, end } = req.query;
+const { start, end, partnerName } = req.query;
+
 
     let startDate, endDate;
 
@@ -27,6 +28,25 @@ exports.getDashboardStats = async (req, res) => {
       startDate.getMonth(),
       0
     );
+    const partnerFilterStage = partnerName
+  ? [
+      { $unwind: "$partnerIds" },
+      {
+        $lookup: {
+          from: "collaboratepartners",
+          localField: "partnerIds.partnerId",
+          foreignField: "_id",
+          as: "partner",
+        },
+      },
+      { $unwind: "$partner" },
+      {
+        $match: {
+          "partner.name": { $regex: partnerName, $options: "i" },
+        },
+      },
+    ]
+  : [{ $unwind: "$partnerIds" }];
     const topPartners = await User.aggregate([
       { $unwind: "$partnerIds" },
       {
@@ -116,32 +136,37 @@ exports.getDashboardStats = async (req, res) => {
         })
     );
     const filteredGrowthData = growthData.filter((item) => item !== null);
-    const trendlineData = await User.aggregate([
-      {
-        $match: {
-          createdAt: { $gte: startDate, $lte: endDate },
+  const trendlineData = await User.aggregate([
+  {
+    $match: {
+      createdAt: { $gte: startDate, $lte: endDate },
+    },
+  },
+
+  ...partnerFilterStage,
+
+  {
+    $group: {
+      _id: {
+        date: {
+          $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
         },
       },
+      leads: { $sum: 1 },
+    },
+  },
 
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
-          },
-          leads: { $sum: 1 },
-        },
-      },
+  { $sort: { "_id.date": 1 } },
 
-      { $sort: { _id: 1 } },
+  {
+    $project: {
+      _id: 0,
+      date: "$_id.date",
+      leads: 1,
+    },
+  },
+]);
 
-      {
-        $project: {
-          date: "$_id",
-          leads: 1,
-          _id: 0,
-        },
-      },
-    ]);
 
     const totals = {
       totalLeads: await User.countDocuments({
