@@ -37,7 +37,11 @@ const userSchema = new Schema(
     },
 
     dynamicFields: { type: mongoose.Schema.Types.Mixed, default: {} },
+    emailResults: {
+      type: String,
+    },
   },
+
   { timestamps: true }
 );
 userSchema.pre("save", async function (next) {
