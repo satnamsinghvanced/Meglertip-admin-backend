@@ -20,13 +20,14 @@ const fileFilter = (req, file, cb) => {
     "image/png",
     "image/webp",
     "text/csv",
-    "application/vnd.ms-excel",
+    "image/svg+xml",
+    "application/vnd.ms-excel", // .xls
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
   ];
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb( new Error("Only JPEG, JPG, PNG, WEBP, CSV, XLS, XLSX files are allowed"), false);
+    cb( new Error("Only JPEG, JPG, PNG, WEBP, SVG, CSV, XLS, XLSX files are allowed"), false);
   }
 };
 
