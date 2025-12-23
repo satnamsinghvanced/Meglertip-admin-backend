@@ -20,7 +20,7 @@ const fileFilter = (req, file, cb) => {
     "image/png",
     "image/webp",
     "text/csv",
-    "application/vnd.ms-excel", // .xls
+    "application/vnd.ms-excel",
     "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // .xlsx
   ];
   if (allowedTypes.includes(file.mimetype)) {
