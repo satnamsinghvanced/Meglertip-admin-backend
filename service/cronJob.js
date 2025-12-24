@@ -6,6 +6,7 @@ const user = require("../models/user");
 const SmtpConfig = require("../models/SMTPConfig");
 const emailTemplates = require("../models/email-templates");
 const nodemailer = require("nodemailer");
+const partners = require("../models/partners");
 
 const BASE_URL = process.env.API_BASE_URL;
 const FRONTEND_URL = process.env.FRONTEND_URL;
@@ -141,10 +142,11 @@ cron.schedule("0 0 * * *", async () => {
       lastDayEnd
     );
     const leads = await user.find({
-      createdAt: { $gte: lastDayStart, $lte: lastDayEnd }, status : "Complete"
+      createdAt: { $gte: lastDayStart, $lte: lastDayEnd },
+      status: "Complete",
     });
     console.log(`Found ${leads.length} lead(s)`);
-// console.log(leads , "lead data");
+
     if (leads.length === 0)
       return console.log("No leads to send email to today.");
 
@@ -164,12 +166,14 @@ cron.schedule("0 0 * * *", async () => {
     });
 
     console.log("Fetching active email template...");
-    const template = await emailTemplates.findOne({ name: "Response from lead after 3 weeks" });
+    const template = await emailTemplates.findOne({
+      name: "Response from lead after 3 weeks",
+    });
     if (!template) throw new Error("No active email template found");
     console.log("Email template found:", template.name);
 
     for (const lead of leads) {
-       const emailBody = fillTemplate(template.body, lead);
+      const emailBody = fillTemplate(template.body, lead);
       console.log("Sending email to:", lead.dynamicFields[0].values.email);
       await transporter.sendMail({
         from: smtpConfig.fromEmail,
@@ -177,7 +181,9 @@ cron.schedule("0 0 * * *", async () => {
         subject: template.subject,
         html: emailBody,
       });
-      console.log(`Email successfully sent to ${lead.dynamicFields[0].values.email}`);
+      console.log(
+        `Email successfully sent to ${lead.dynamicFields[0].values.email}`
+      );
     }
 
     console.log("Cron job finished successfully at:", new Date().toISOString());
@@ -189,9 +195,35 @@ function fillTemplate(templateBody, lead) {
   let body = templateBody;
 
   // Replace placeholders
-  body = body.replace(/{{name}}/g, lead.dynamicFields?.[0]?.values?.name || "Lead");
+  body = body.replace(
+    /{{name}}/g,
+    lead.dynamicFields?.[0]?.values?.name || "Lead"
+  );
   body = body.replace(/{{id}}/g, lead.uniqueId || "");
-  body = body.replace(/{{buttonLink}}/g,  `https://docs.google.com/forms/d/e/1FAIpQLSfC7vn3ztpbPhhVwEAC0sa1Mo8O4sDaFYXb9vPpzRgp5Tsk_g/viewform `);
+  body = body.replace(
+    /{{buttonLink}}/g,
+    `https://docs.google.com/forms/d/e/1FAIpQLSfC7vn3ztpbPhhVwEAC0sa1Mo8O4sDaFYXb9vPpzRgp5Tsk_g/viewform `
+  );
 
   return body;
 }
+
+cron.schedule(
+  "2 0 1 * *",
+  async () => {
+    console.log("🇳🇴 Monthly partner lead reset (Norway time)");
+
+    await partners.updateMany({}, [
+      {
+        $set: {
+          "leads.lastMonth": "$leads.currentMonth",
+          "leads.currentMonth": 0,
+          "leads.lastReset": new Date(),
+        },
+      },
+    ]);
+  },
+  {
+    timezone: "Europe/Oslo",
+  }
+);
