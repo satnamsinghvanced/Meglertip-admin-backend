@@ -39,11 +39,11 @@ async function generateSitemap() {
     );
 
     const countiesUrls = counties.map(
-      (c) => `${FRONTEND_URL}/eiendomsmegler?county=${c.slug}`
+      (c) => `${FRONTEND_URL}/eiendomsmegler/${c.slug}`
     );
 
     const articleUrls = articles.map(
-      (a) => `${FRONTEND_URL}/articles/${a.categoryId?.slug}/${a.slug}`
+      (a) => `${FRONTEND_URL}/artikler/${a.categoryId?.slug}/${a.slug}`
     );
 
     const now = new Date().toISOString();
@@ -53,11 +53,15 @@ async function generateSitemap() {
 
     const staticUrls = [
       "",
-      "/about",
+      "/om-oss",
       "/eiendomsmegler",
       "/partner",
-      "/faq",
+      "/ofte-stilte-sporsmal",
       "/form",
+      "/tjenestevilkar",
+      "/personvernerklaring",
+      
+
     ];
 
     const addUrl = (loc, freq, priority) => {
