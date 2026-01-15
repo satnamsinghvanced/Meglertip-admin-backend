@@ -1,5 +1,6 @@
 const Place = require("../../../models/places");
 
+
 exports.create = async (req, res) => {
   try {
     const {
@@ -9,41 +10,41 @@ exports.create = async (req, res) => {
       excerpt,
       title,
       description,
-      isRecommended,
       rank,
+      companies,
+      robots,
       ...restOfData
     } = req.body;
-    // const imageFile = req.file;
 
-    if (
-      !name ||
-      !countyId ||
-      !slug ||
-      !excerpt ||
-      !title ||
-      !description 
-      // ||
-      // !imageFile
-    ) {
+    // Handle uploaded icon
+    const iconFile = req.file || req.files?.icon?.[0];
+    const iconPath = iconFile ? `uploads/${iconFile.filename}` : "";
+
+    if (!name || !countyId || !slug || !excerpt || !title || !description) {
       return res.status(400).json({
         success: false,
         message: "All fields are required.",
       });
     }
 
+    // Check duplicate
     const existingCity = await Place.findOne({
-      $or: [
-        { title: title.trim() },
-        { slug: slug.trim() },
-        { name: name.trim() },
-      ],
+      $or: [{ title: title.trim() }, { slug: slug.trim() }, { name: name.trim() }],
     });
 
     if (existingCity) {
-      return res.status(400).json({
-        success: false,
-        message: "City already exists.",
-      });
+      return res.status(400).json({ success: false, message: "City already exists." });
+    }
+
+    // Parse companies and robots if sent as JSON strings
+    let parsedCompanies = [];
+    if (companies) {
+      parsedCompanies = typeof companies === "string" ? JSON.parse(companies) : companies;
+    }
+
+    let parsedRobots = {};
+    if (robots) {
+      parsedRobots = typeof robots === "string" ? JSON.parse(robots) : robots;
     }
 
     const newCity = await Place.create({
@@ -53,10 +54,11 @@ exports.create = async (req, res) => {
       excerpt: excerpt.trim(),
       title: title.trim(),
       description: description.trim(),
-      // image: `uploads/${imageFile.filename}`,
-      isRecommended: isRecommended === "true" || isRecommended === true,
+      icon: iconPath,
       rank: rank ? parseInt(rank) : 0,
-      ...restOfData
+      companies: parsedCompanies,
+      robots: parsedRobots,
+      ...restOfData,
     });
 
     res.status(201).json({
@@ -68,7 +70,6 @@ exports.create = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-
 exports.getCities = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -85,7 +86,7 @@ exports.getCities = async (req, res) => {
         { slug: { $regex: search, $options: "i" } },
       ];
     }
-    
+
     const sortField = sortBy || "name";
     const sortDirection = sortOrder === "asc" ? 1 : -1;
 
@@ -112,7 +113,9 @@ exports.getCities = async (req, res) => {
 exports.getCityById = async (req, res) => {
   try {
     const { id } = req.params;
-    const city = await Place.findById(id).populate("countyId", "name slug");
+    const city = await Place.findById(id)
+      .populate("countyId", "name slug")
+      .populate("companies.companyId", "companyName");
     if (!city) {
       return res
         .status(404)
@@ -138,11 +141,11 @@ exports.update = async (req, res) => {
       excerpt,
       title,
       description,
-      isRecommended,
       rank,
+      companies,
+      robots,
       ...restOfData
     } = req.body;
-    // const imageFile = req.file;
 
     const updatedFields = {
       ...(name && { name }),
@@ -151,16 +154,22 @@ exports.update = async (req, res) => {
       ...(excerpt && { excerpt }),
       ...(title && { title }),
       ...(description && { description }),
-      ...(isRecommended !== undefined && {
-        isRecommended: isRecommended === "true" || isRecommended === true,
-        ...restOfData
-      }),
       ...(rank !== undefined && { rank: parseInt(rank) }),
+      ...restOfData,
     };
 
-    // if (imageFile) {
-    //   updatedFields.image = `uploads/${imageFile.filename}`;
-    // }
+    // Handle icon update
+    const iconFile = req.file || req.files?.icon?.[0];
+    if (iconFile) updatedFields.icon = `uploads/${iconFile.filename}`;
+
+    // Parse companies and robots if sent as JSON strings
+    if (companies) {
+      updatedFields.companies = typeof companies === "string" ? JSON.parse(companies) : companies;
+    }
+
+    if (robots) {
+      updatedFields.robots = typeof robots === "string" ? JSON.parse(robots) : robots;
+    }
 
     const updatedCity = await Place.findByIdAndUpdate(id, updatedFields, {
       new: true,
@@ -168,9 +177,7 @@ exports.update = async (req, res) => {
     });
 
     if (!updatedCity) {
-      return res
-        .status(404)
-        .json({ success: false, message: "City not found." });
+      return res.status(404).json({ success: false, message: "City not found." });
     }
 
     res.status(200).json({
@@ -182,7 +189,6 @@ exports.update = async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 };
-
 exports.deleteCity = async (req, res) => {
   try {
     const { id } = req.params;

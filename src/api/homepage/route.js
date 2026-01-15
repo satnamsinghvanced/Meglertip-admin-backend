@@ -40,5 +40,8 @@ router.put("/seo", controller.updateSeoSection);
 router.get("/pros", controller.getProsSection);
 router.put("/pros", controller.updateProsSection);
 
+router.get("/locations", controller.getLocations);
+
+
 
 module.exports = router;

@@ -1,4 +1,6 @@
+const County = require("../../../models/county");
 const HomePage = require("../../../models/homepage");
+const Place = require("../../../models/places");
 
 const getOrCreateHomePage = async () => {
   let home = await HomePage.findOne();
@@ -161,9 +163,9 @@ exports.getCitySection = async (req, res) => {
 
 exports.updateCitySection = async (req, res) => {
   try {
-    const { title, description, ctaLink, buttonText } = req.body;
+    const { title, description, ctaLink, buttonText , locations } = req.body;
     const home = await getOrCreateHomePage();
-    home.citySectionHeading = { title, description, ctaLink, buttonText };
+    home.citySectionHeading = { title, description, ctaLink, buttonText, locations };
     await home.save();
     res.status(200).json({ success: true, message: "City section updated" });
   } catch (err) {
@@ -227,12 +229,47 @@ exports.getSeoSection = async (req, res) => {
 
 exports.updateSeoSection = async (req, res) => {
   try {
-    const { seoSection } = req.body; 
+    const { seoSection } = req.body;
     const home = await getOrCreateHomePage();
     home.seo = seoSection;
     await home.save();
     res.status(200).json({ success: true, message: "Seo section updated" });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
+  }
+};
+
+exports.getLocations = async (req, res) => {
+  try {
+    const [counties, places] = await Promise.all([
+      County.find().select("_id name slug").lean(),
+      Place.find().select("_id name slug").lean(),
+    ]);
+
+    const data = [
+      ...counties.map(c => ({
+        id: c._id,
+        name: c.name,
+        slug: c.slug,
+        locationType: "County",
+      })),
+      ...places.map(p => ({
+        id: p._id,
+        name: p.name,
+        slug: p.slug,
+        locationType: "Place",
+      })),
+    ];
+
+    res.status(200).json({
+      success: true,
+      data,
+    });
+  } catch (err) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch locations",
+      error: err.message,
+    });
   }
 };

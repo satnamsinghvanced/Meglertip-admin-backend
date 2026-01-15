@@ -43,6 +43,24 @@ const homePageSchema = new mongoose.Schema(
       description: { type: String },
       buttonText: { type: String, trim: true },
       ctaLink: { type: String, trim: true },
+
+      locations: [
+        {
+          locationId: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            refPath: "citySectionHeading.locations.locationType",
+          },
+          locationType: {
+            type: String,
+            required: true,
+            enum: ["County", "Place"], 
+          },
+          order: {
+            type: Number, 
+          },
+        },
+      ],
     },
     prosSection: [
       {

@@ -2,13 +2,13 @@ const County = require("../../../models/county");
 
 exports.createCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt, icon } = req.body;
+    const { name, slug, excerpt,  ...restOfData} = req.body;
     if (!name || !slug) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
     const existing = await County.findOne({
-      $or: [{ name: name.trim() }, { slug: slug.trim() }],
+      $or: [{ name: name.trim() }, { slug: slug.trim() ,   ...restOfData}],
     });
 
     if (existing) {
@@ -22,6 +22,7 @@ exports.createCounty = async (req, res) => {
       slug: slug.trim(),
       excerpt: excerpt.trim(),
       icon: imagePath,
+       ...restOfData
     });
 
     res.status(201).json({
@@ -89,7 +90,10 @@ exports.getCountiesForPlace = async (req, res) => {
 
 exports.getCountyById = async (req, res) => {
   try {
-    const county = await County.findById(req.params.id);
+    const county = await County.findById(req.params.id).populate(
+      "companies.companyId",
+      "companyName"
+    );
     if (!county) return res.status(404).json({ message: "County not found" });
     res.status(200).json({
       success: true,
@@ -103,11 +107,11 @@ exports.getCountyById = async (req, res) => {
 
 exports.updateCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt, icon } = req.body;
+    const { name, slug, excerpt, icon , ...restOfData} = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
     const county = await County.findByIdAndUpdate(
       req.params.id,
-      { name, slug, excerpt, icon: imagePath },
+      { name, slug, excerpt, icon: imagePath , ...restOfData},
       { new: true, runValidators: true }
     );
 

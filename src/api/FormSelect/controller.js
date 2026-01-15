@@ -1,4 +1,5 @@
 const FormSelect = require("../../../models/formSelect");
+const partners = require("../../../models/partners");
 
 exports.CreateFormSelect = async (req, res) => {
   try {
@@ -21,7 +22,18 @@ exports.CreateFormSelect = async (req, res) => {
       formDescription,
       price,
     });
-
+    await partners.updateMany(
+      {},
+      {
+        $addToSet: {
+          leadTypes: {
+            typeId: newForm._id,
+            name: newForm.formTitle,
+            price: newForm.price,
+          },
+        },
+      }
+    );
     res.status(201).json({
       success: true,
       message: "Form created successfully",
@@ -93,7 +105,18 @@ exports.UpdateFormSelect = async (req, res) => {
         message: "Form not found",
       });
     }
-
+    await partners.updateMany(
+      { "leadTypes.typeId": updated._id },
+      {
+        $set: {
+          "leadTypes.$[elem].name": updated.formTitle,
+          "leadTypes.$[elem].price": updated.price,
+        },
+      },
+      {
+        arrayFilters: [{ "elem.typeId": updated._id }],
+      }
+    );
     res.status(200).json({
       success: true,
       message: "Form updated successfully",

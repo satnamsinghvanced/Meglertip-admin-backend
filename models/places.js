@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-const seoDataSchema = require("./seoSettings");
+
 const placeSchema = new mongoose.Schema(
   {
     name: { type: String, required: true },
@@ -12,16 +12,27 @@ const placeSchema = new mongoose.Schema(
     excerpt: { type: String },
     title: { type: String },
     description: { type: String },
+    icon: { type: String },
     isRecommended: { type: Boolean, default: false },
     rank: { type: Number, default: 0 },
-    companiesId:{
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Company",
-    },
-    //   seo: {
-    //   type: seoDataSchema,
-    //   default: () => ({}),
-    // },
+    companies: [
+      {
+        companyId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Company",
+          required: true,
+        },
+        rank: {
+          type: Number,
+          default: 0, // order inside this place
+        },
+        isRecommended: {
+          type: Boolean,
+          default: false,
+        },
+      },
+    ],
+
     metaTitle: { type: String, trim: true, default: "" },
     metaDescription: { type: String, trim: true, default: "" },
     metaKeywords: { type: String, trim: true, default: "" },
