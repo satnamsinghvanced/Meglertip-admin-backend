@@ -144,6 +144,7 @@ exports.update = async (req, res) => {
       rank,
       companies,
       robots,
+      icon,
       ...restOfData
     } = req.body;
 
@@ -161,6 +162,7 @@ exports.update = async (req, res) => {
     // Handle icon update
     const iconFile = req.file || req.files?.icon?.[0];
     if (iconFile) updatedFields.icon = `uploads/${iconFile.filename}`;
+    else if (icon !== undefined) updatedFields.icon = icon;
 
     // Parse companies and robots if sent as JSON strings
     if (companies) {
