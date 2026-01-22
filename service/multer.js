@@ -17,6 +17,7 @@ const fileFilter = (req, file, cb) => {
   const allowedTypes = [
     "image/jpeg",
     "image/jpg",
+    "image/svg+xml",
     "image/png",
     "image/webp",
     "text/csv",
@@ -26,7 +27,7 @@ const fileFilter = (req, file, cb) => {
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb( new Error("Only JPEG, JPG, PNG, WEBP, CSV, XLS, XLSX files are allowed"), false);
+    cb(new Error("Only JPEG, JPG, PNG, WEBP, CSV, XLS, XLSX, svg files are allowed"), false);
   }
 };
 
@@ -39,4 +40,3 @@ const uploadImage = multer({
 });
 
 module.exports = uploadImage;
-  
