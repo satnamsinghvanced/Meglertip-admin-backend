@@ -2,13 +2,23 @@ const County = require("../../../models/county");
 
 exports.createCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt,  ...restOfData} = req.body;
+    const { name, slug, excerpt, companies, ...restOfData } = req.body;
     if (!name || !slug) {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    // Parse companies if it's a string
+    let parsedCompanies = companies;
+    if (typeof companies === 'string') {
+      try {
+        parsedCompanies = JSON.parse(companies);
+      } catch (parseError) {
+        return res.status(400).json({ message: "Invalid companies data format." });
+      }
+    }
+
     const existing = await County.findOne({
-      $or: [{ name: name.trim() }, { slug: slug.trim() ,   ...restOfData}],
+      $or: [{ name: name.trim() }, { slug: slug.trim() }],
     });
 
     if (existing) {
@@ -20,9 +30,10 @@ exports.createCounty = async (req, res) => {
     const county = await County.create({
       name: name.trim(),
       slug: slug.trim(),
-      excerpt: excerpt.trim(),
+      excerpt: excerpt ? excerpt.trim() : '',
       icon: imagePath,
-       ...restOfData
+      companies: parsedCompanies,
+      ...restOfData
     });
 
     res.status(201).json({
@@ -107,11 +118,54 @@ exports.getCountyById = async (req, res) => {
 
 exports.updateCounty = async (req, res) => {
   try {
-    const { name, slug, excerpt, icon , ...restOfData} = req.body;
+    const { name, slug, excerpt, icon, companies, ...restOfData } = req.body;
     const imagePath = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // Parse companies if it's a string
+    let parsedCompanies = companies;
+    if (typeof companies === 'string') {
+      try {
+        parsedCompanies = JSON.parse(companies);
+      } catch (parseError) {
+        return res.status(400).json({ message: "Invalid companies data format." });
+      }
+    }
+
+    // Check for uniqueness if name or slug is being updated
+    if (name || slug) {
+      const existing = await County.findOne({
+        $or: [
+          name ? { name: name.trim() } : null,
+          slug ? { slug: slug.trim() } : null,
+        ].filter(Boolean),
+        _id: { $ne: req.params.id },
+      });
+
+      if (existing) {
+        return res
+          .status(400)
+          .json({ message: "County with that name or slug already exists." });
+      }
+    }
+
+    const updateData = {
+      name: name ? name.trim() : undefined,
+      slug: slug ? slug.trim() : undefined,
+      excerpt: excerpt !== undefined ? (excerpt ? excerpt.trim() : '') : undefined,
+      icon: icon,
+      companies: parsedCompanies,
+      ...restOfData
+    };
+
+    if (imagePath) {
+      updateData.icon = imagePath;
+    } else if (icon !== undefined) {
+      updateData.icon = icon;
+    }
+
     const county = await County.findByIdAndUpdate(
       req.params.id,
-      { name, slug, excerpt, icon: imagePath , ...restOfData},
+      updateData,
       { new: true, runValidators: true }
     );
 
