@@ -123,7 +123,12 @@ exports.getDashboardStats = async (req, res) => {
           const partner = await Partner.findById(curr._id).select("name");
           if (!partner) return null;
           const prev = lastMonthMap[curr._id] || 0;
-          const growth = prev === 0 ? 100 : ((curr.leads - prev) / prev) * 100;
+          const growth =
+          prev === 0
+            ? curr.leads > 0
+              ? 100
+              : 0
+            : Math.max(0, ((curr.leads - prev) / prev) * 100);
 
           return {
             partnerId: curr._id,
