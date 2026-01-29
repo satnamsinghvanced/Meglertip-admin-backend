@@ -15,17 +15,18 @@ exports.getDashboardStats = async (req, res) => {
       endDate = new Date(end);
       endDate.setHours(23, 59, 59, 999);
     }
+const lastMonthStart = new Date(
+  startDate.getFullYear(),
+  startDate.getMonth() - 1,
+  1
+);
 
-    const lastMonthStart = new Date(
-      startDate.getFullYear(),
-      startDate.getMonth() - 1,
-      1,
-    );
-    const lastMonthEnd = new Date(
-      startDate.getFullYear(),
-      startDate.getMonth(),
-      0,
-    );
+const lastMonthEnd = new Date(
+  lastMonthStart.getFullYear(),
+  lastMonthStart.getMonth(),
+  startDate.getDate(),
+ 23,59,59,999
+);
 
     const partnerFilterStage = partnerName
       ? [
@@ -80,47 +81,51 @@ exports.getDashboardStats = async (req, res) => {
         },
       },
     ]);
-    const leadsCurrentRange = await User.aggregate([
-      { $unwind: "$partnerIds" },
-      {
-        $match: {
-          createdAt: { $gte: startDate, $lte: endDate },
-          status: "Complete",
-        },
-      },
-      {
-        $group: {
-          _id: "$partnerIds.partnerId",
-          leads: { $sum: 1 },
-        },
-      },
-    ]);
+ const leadsCurrentRange = await User.aggregate([
+  { $unwind: "$partnerIds" },
+  {
+    $match: {
+      "partnerIds.partnerId": { $ne: null },
+      createdAt: { $gte: startDate, $lte: endDate },
+      status: "Complete",
+    },
+  },
+  {
+    $group: {
+      _id: "$partnerIds.partnerId",
+      leads: { $sum: 1 },
+    },
+  },
+]);
 
-    const leadsLastMonth = await User.aggregate([
-      { $unwind: "$partnerIds" },
-      {
-        $match: {
-          createdAt: { $gte: lastMonthStart, $lte: lastMonthEnd },
-          status: "Complete",
-        },
-      },
-      {
-        $group: {
-          _id: "$partnerIds.partnerId",
-          leads: { $sum: 1 },
-        },
-      },
-    ]);
 
-    const lastMonthMap = {};
-    leadsLastMonth.forEach((l) => {
-      lastMonthMap[l._id] = l.leads;
-    });
+   const leadsLastMonth = await User.aggregate([
+  { $unwind: "$partnerIds" },
+  {
+    $match: {
+      "partnerIds.partnerId": { $ne: null },
+      createdAt: { $gte: lastMonthStart, $lte: lastMonthEnd },
+      status: "Complete",
+    },
+  },
+  {
+    $group: {
+      _id: "$partnerIds.partnerId",
+      leads: { $sum: 1 },
+    },
+  },
+]);
+
+const lastMonthMap = {};
+
+leadsLastMonth.forEach((l) => {
+  lastMonthMap[l._id.toString()] = l.leads;
+});
       const growthData = await Promise.all(
       leadsCurrentRange.map(async (curr) => {
         const partner = await Partner.findById(curr._id).select("name");
 
-        const prev = lastMonthMap[curr._id] || 0;
+       const prev = Number(lastMonthMap[curr._id.toString()] ?? 0);
 
         const growth = prev === 0 ? 100 : ((curr.leads - prev) / prev) * 100;
 
@@ -188,14 +193,17 @@ exports.getDashboardStats = async (req, res) => {
       trendlineData,
       totals,
     });
-  } catch (error) {
-    console.error("Dashboard Stats Error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to load dashboard stats",
-      error,
-    });
-  }
+  }catch (error) {
+  console.error("Dashboard Stats Error:", error.message);
+  console.error(error.stack);
+
+  res.status(500).json({
+    success: false,
+    message: "Failed to load dashboard stats",
+    error: error.message,
+  });
+}
+
 };
 
 exports.totalLeads = async (req, res) => {
