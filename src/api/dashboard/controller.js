@@ -38,7 +38,7 @@ exports.getDashboardStats = async (req, res) => {
 
       {
         $group: {
-          _id: "$partnerIds",
+          _id: "$partnerIds.partnerId",
           totalLeads: { $sum: 1 },
         },
       },
@@ -77,7 +77,7 @@ exports.getDashboardStats = async (req, res) => {
 
       {
         $group: {
-          _id: "$partnerIds",
+          _id: "$partnerIds.partnerId",
           leads: { $sum: 1 },
         },
       },
@@ -94,7 +94,7 @@ exports.getDashboardStats = async (req, res) => {
 
       {
         $group: {
-          _id: "$partnerIds",
+          _id: "$partnerIds.partnerId",
           leads: { $sum: 1 },
         },
       },
