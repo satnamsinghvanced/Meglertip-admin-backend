@@ -20,12 +20,12 @@ exports.getDashboardStats = async (req, res) => {
     const lastMonthStart = new Date(
       startDate.getFullYear(),
       startDate.getMonth() - 1,
-      1
+      1,
     );
     const lastMonthEnd = new Date(
       startDate.getFullYear(),
       startDate.getMonth(),
-      0
+      0,
     );
     const topPartners = await User.aggregate([
       { $unwind: "$partnerIds" },
@@ -111,7 +111,12 @@ exports.getDashboardStats = async (req, res) => {
 
         const prev = lastMonthMap[curr._id] || 0;
 
-        const growth = prev === 0 ? 100 : ((curr.leads - prev) / prev) * 100;
+        const growth =
+          prev === 0
+            ? curr.leads > 0
+              ? 100
+              : 0
+            : Math.max(0, ((curr.leads - prev) / prev) * 100);
 
         return {
           partnerId: curr._id,
