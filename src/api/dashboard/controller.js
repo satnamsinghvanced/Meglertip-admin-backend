@@ -102,14 +102,14 @@ exports.getDashboardStats = async (req, res) => {
 
     const lastMonthMap = {};
     leadsLastMonth.forEach((l) => {
-     lastMonthMap[l._id.toString()] = l.leads; 
+      lastMonthMap[l._id] = l.leads;
     });
 
     const growthData = await Promise.all(
       leadsCurrentRange.map(async (curr) => {
         const partner = await Partner.findById(curr._id).select("name");
 
-    const prev = lastMonthMap[curr._id.toString()] || 0;
+        const prev = lastMonthMap[curr._id] || 0;
 
         const growth =
           prev === 0
