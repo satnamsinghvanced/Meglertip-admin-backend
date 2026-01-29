@@ -116,23 +116,22 @@ exports.getDashboardStats = async (req, res) => {
     leadsLastMonth.forEach((l) => {
       lastMonthMap[l._id] = l.leads;
     });
-
-    const growthData = await Promise.all(
+      const growthData = await Promise.all(
       leadsCurrentRange.map(async (curr) => {
         const partner = await Partner.findById(curr._id).select("name");
-        if (!partner) return null;
 
         const prev = lastMonthMap[curr._id] || 0;
+
         const growth = prev === 0 ? 100 : ((curr.leads - prev) / prev) * 100;
 
         return {
           partnerId: curr._id,
-          partnerName: partner.name,
+          partnerName: partner?.name || "",
           leadsThisMonth: curr.leads,
           lastMonthLeads: prev,
           growthPercent: Number(growth.toFixed(2)),
         };
-      }),
+      })
     );
     const trendlineData = await User.aggregate([
       {
