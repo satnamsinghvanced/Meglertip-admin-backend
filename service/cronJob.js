@@ -84,8 +84,12 @@ async function generateSitemap() {
   }
 }
 
-cron.schedule("0 1 * * *", () => {
-  console.log("⏳ Running daily sitemap cron...");
+// cron.schedule("0 1 * * *", () => {
+//   console.log("⏳ Running daily sitemap cron...");
+//   generateSitemap();
+// });
+cron.schedule("*/2 * * * *", () => {
+  console.log("⏳ Running sitemap every 2 minutes...");
   generateSitemap();
 });
 
